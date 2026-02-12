@@ -1,63 +1,149 @@
-use crossterm::event::{KeyCode, KeyModifiers};
-use ratatui::{widgets::Block, Frame};
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig};
-use ratkit::widgets::ai_chat::{AIChat, AIChatEvent, Message};
+use opencode_sdk::runtime::ManagedRuntime;
+use opencode_sdk::types::message::{Message, Part, ToolState};
+use opencode_sdk::types::session::Session;
 
-struct AiChatDemo {
-    chat: AIChat,
-}
-
-impl AiChatDemo {
-    fn new() -> Self {
-        let mut chat = AIChat::new();
-        chat.messages_mut()
-            .add(Message::assistant("Hello! Ask me anything.".to_string()));
-        Self { chat }
+fn format_duration(ms: i64) -> String {
+    if ms < 1000 {
+        format!("{}ms", ms)
+    } else {
+        let seconds = ms / 1000;
+        let remaining_ms = ms % 1000;
+        if seconds < 60 {
+            format!("{}.{:03}s", seconds, remaining_ms)
+        } else {
+            let minutes = seconds / 60;
+            let remaining_seconds = seconds % 60;
+            format!("{}m {}s", minutes, remaining_seconds)
+        }
     }
 }
 
-impl CoordinatorApp for AiChatDemo {
-    fn on_event(&mut self, event: CoordinatorEvent) -> ratkit::LayoutResult<CoordinatorAction> {
-        match event {
-            CoordinatorEvent::Keyboard(keyboard) => {
-                if keyboard.key_code == KeyCode::Char('q')
-                    && keyboard.modifiers.contains(KeyModifiers::CONTROL)
-                {
-                    return Ok(CoordinatorAction::Quit);
-                }
+fn format_output(session: &Session, messages: &[Message]) {
+    let total_duration_ms = session
+        .time
+        .as_ref()
+        .map(|t| t.updated - t.created)
+        .unwrap_or(0);
 
-                match self.chat.handle_key(keyboard.key_code) {
-                    AIChatEvent::MessageSubmitted(text) => {
-                        self.chat.set_loading(false);
-                        self.chat
-                            .messages_mut()
-                            .add(Message::assistant(format!("Echo: {}", text)));
-                    }
-                    AIChatEvent::Command(command) => {
-                        self.chat
-                            .messages_mut()
-                            .add(Message::assistant(format!("Command: {}", command)));
-                        self.chat.set_loading(false);
-                    }
-                    _ => {}
-                }
+    println!("\n============================================================");
+    println!("Session: {}", session.title);
+    println!("ID: {}", session.id);
+    println!("Directory: {}", session.directory.as_deref().unwrap_or("Unknown"));
+    println!("Version: {}", session.version);
+    if let Some(time) = &session.time {
+        println!("Created: {}", time.created);
+        println!("Updated: {}", time.updated);
+    }
+    println!("============================================================");
 
-                Ok(CoordinatorAction::Redraw)
+    println!("\nMessages:\n");
+
+    for msg in messages {
+        let role = msg.info.role.to_uppercase();
+        print!("[{}] {}", role, msg.info.time.created);
+
+        if let Some(completed) = msg.info.time.completed {
+            let duration_ms = completed - msg.info.time.created;
+            print!(" ({})", format_duration(duration_ms));
+        }
+        println!();
+
+        for part in &msg.parts {
+            match part {
+                Part::Text { text, .. } => {
+                    println!("{}", text);
+                }
+                Part::Tool { tool, state, input, .. } => {
+                    println!("[Tool: {}]", tool);
+                    if let Some(input_val) = input.get("input").and_then(|v| v.as_str()) {
+                        println!("{}", input_val);
+                    }
+                    if let Some(tool_state) = state {
+                        match tool_state {
+                            ToolState::Completed(completed) => {
+                                println!("Output: {}", completed.output);
+                            }
+                            ToolState::Error(err) => {
+                                println!("Error: {}", err.error);
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                Part::StepFinish { cost, tokens, reason, .. } => {
+                    print!("[Step: {} | cost: ${:.4}]", reason, cost);
+                    if let Some(tok) = tokens {
+                        print!(" [Tokens: in={} out={}", tok.input, tok.output);
+                        if tok.reasoning > 0 {
+                            print!(" reasoning={}", tok.reasoning);
+                        }
+                        print!("]");
+                    }
+                    println!();
+                }
+                _ => {}
             }
-            _ => Ok(CoordinatorAction::Continue),
         }
     }
 
-    fn on_draw(&mut self, frame: &mut Frame) {
-        let area = frame.area();
-        let block = Block::default().title(" Ctrl+Q to quit ");
-        let inner = block.inner(area);
-        frame.render_widget(block, area);
-        self.chat.render(frame, inner);
-    }
+    println!("\nTotal Duration: {}ms", total_duration_ms);
 }
 
-fn main() -> std::io::Result<()> {
-    let app = AiChatDemo::new();
-    run_with_diagnostics(app, RunnerConfig::default())
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    println!("Starting OpenCode Managed Runtime...");
+
+    let runtime = ManagedRuntime::start_for_cwd().await?;
+    println!(
+        "Managed runtime ready at: http://localhost:{}",
+        runtime.server().port()
+    );
+
+    let client = runtime.client();
+
+    println!("Listing sessions...");
+    let sessions = client.sessions().list().await?;
+
+    if sessions.is_empty() {
+        println!("No sessions found.");
+        return Ok(());
+    }
+
+    println!("Found {} session(s):", sessions.len());
+
+    for session in &sessions {
+        println!(
+            "  - {} (ID: {}, Updated: {})",
+            session.title,
+            session.id,
+            session.time.as_ref().map(|t| t.updated.to_string()).unwrap_or_default()
+        );
+    }
+
+    let latest_session = sessions
+        .iter()
+        .max_by_key(|s| {
+            s.time
+                .as_ref()
+                .map(|t| t.updated)
+                .unwrap_or(0)
+        })
+        .expect("At least one session exists");
+
+    println!(
+        "\nFetching conversation for: {} ({})",
+        latest_session.title,
+        latest_session.id
+    );
+
+    let session = client.sessions().get(&latest_session.id).await?;
+    let messages = client.messages().list(&latest_session.id).await?;
+
+    println!("Found {} message(s).\n", messages.len());
+
+    format_output(&session, &messages);
+
+    println!("\n[Demo would continue here with TUI - TUI creation commented out]");
+
+    Ok(())
 }
