@@ -1,15 +1,45 @@
 ---
-title: Ai-Chat
-description: Auto-generated documentation from rustdoc
+title: AIChat
+description: Chat interface widget for AI applications.
 ---
 
-# Ai-Chat
+## Overview
 
-AI Chat Widget for interactive chat interfaces.
-Provides a chat interface with:
-- Multi-line text input (Ctrl+J for newline)
-- File attachments via @ prefix with fuzzy search
-- Commands via / prefix (e.g., /clear)
-- Message history display
-- Loading spinner for AI responses
+The AIChat widget provides a complete chat interface for building conversational AI applications in the terminal.
 
+## Basic Usage
+
+```rust
+use ratkit::widgets::ai_chat::{AIChat, ChatState, Message};
+use ratatui::Frame;
+
+fn render_chat(frame: &mut Frame) {
+    let messages = vec![
+        Message::user("Hello, can you help me?"),
+        Message::assistant("Of course! What would you like to know?"),
+    ];
+    
+    let chat = AIChat::new(messages);
+    let mut state = ChatState::default();
+    
+    frame.render_stateful_widget(chat, frame.area(), &mut state);
+}
+```
+
+## Features
+
+- **Message types** - User, assistant, and system messages
+- **Streaming support** - Real-time message updates
+- **Input area** - Built-in text input with history
+- **Scrollback** - View message history
+- **Markdown rendering** - Rich message formatting
+
+## Customization
+
+```rust
+let chat = AIChat::new(messages)
+    .user_style(Style::default().fg(Color::Blue))
+    .assistant_style(Style::default().fg(Color::Green))
+    .show_timestamps(true)
+    .max_messages(100);
+```

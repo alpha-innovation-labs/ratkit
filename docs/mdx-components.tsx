@@ -1,0 +1,70 @@
+import defaultMdxComponents from "fumadocs-ui/mdx";
+import {
+	BarChart3,
+	Bell,
+	Blocks,
+	Box,
+	FileClock,
+	FileText,
+	FolderOpen,
+	FolderTree,
+	GitBranch,
+	GitCompare,
+	Grid,
+	Keyboard,
+	Layers,
+	Layout,
+	LayoutGrid,
+	Menu,
+	MessageSquare,
+	MousePointer,
+	MousePointerClick,
+	Palette,
+	PanelTop,
+	Scroll,
+	Settings,
+	Terminal,
+	Type,
+	Workflow,
+	Zap,
+} from "lucide-react";
+import type { MDXComponents } from "mdx/types";
+import Link from "next/link";
+import { CustomCodeTabs } from "./components/custom-code-tabs";
+
+// use this function to get MDX components, you will need it for rendering MDX
+export function getMDXComponents(components?: MDXComponents): MDXComponents {
+	return {
+		...defaultMdxComponents,
+		CustomCodeTabs,
+		Link,
+		// Icons for documentation
+		BarChart3,
+		Bell,
+		Blocks,
+		Box,
+		FileText,
+		FolderOpen,
+		FolderTree,
+		GitBranch,
+		GitCompare,
+		Grid,
+		Keyboard,
+		Layers,
+		Layout,
+		LayoutGrid,
+		Menu,
+		MessageSquare,
+		MousePointer,
+		MousePointerClick,
+		Palette,
+		PanelTop,
+		Scroll,
+		Settings,
+		Terminal,
+		Type,
+		Workflow,
+		Zap,
+		...components,
+	};
+}

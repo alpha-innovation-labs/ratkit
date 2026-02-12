@@ -1,10 +1,42 @@
 ---
 title: Pane
-description: Auto-generated documentation from rustdoc
+description: Container component with borders and title support.
 ---
 
-# Pane
+## Overview
 
-Pane component
-Provides styled panel components with title, icon, padding, and optional footer.
+The Pane primitive provides a container component with customizable borders, titles, and content areas. It's the foundation for organizing content in your TUI.
 
+## Basic Usage
+
+```rust
+use ratkit::primitives::pane::Pane;
+use ratatui::Frame;
+
+fn render_pane(frame: &mut Frame) {
+    let pane = Pane::new("My Pane")
+        .border_style(Style::default().fg(Color::Blue));
+    
+    frame.render_widget(pane, frame.area());
+}
+```
+
+## Customization
+
+Configure borders and styling:
+
+```rust
+let pane = Pane::new("Settings")
+    .title_alignment(Alignment::Center)
+    .border_type(BorderType::Rounded)
+    .border_style(Style::default().fg(Color::Cyan));
+```
+
+## Nested Content
+
+Panes can contain other widgets:
+
+```rust
+let pane = Pane::new("Content")
+    .content(Text::from("Hello, World!"));
+```

@@ -1,36 +1,52 @@
 ---
-title: Termtui
-description: Auto-generated documentation from rustdoc
+title: TermTUI
+description: Terminal TUI utilities for advanced terminal manipulation.
 ---
 
-# Termtui
+## Overview
 
-TermTui - Terminal emulator using mprocs architecture
-This module provides a terminal emulator with:
-- termwiz for VT100 escape sequence parsing
-- VecDeque-based infinite scrollback
-- Copy mode with frozen screen snapshots
-- Mouse and keyboard text selection
-Architecture (matching mprocs):
-```text
-bytes → termwiz Parser → actions → Screen.handle_action() → Grid (VecDeque<Row>)
+The TermTUI primitive provides utilities for advanced terminal manipulation and TUI-specific operations.
+
+## Basic Usage
+
+```rust
+use ratkit::primitives::termtui::TermTUI;
+
+fn setup_terminal() {
+    let term = TermTUI::new();
+    
+    // Enable raw mode
+    term.enable_raw_mode();
+    
+    // Clear screen
+    term.clear();
+    
+    // Restore terminal on exit
+    term.restore();
+}
 ```
 
-## Struct: TermTui
+## Terminal Information
 
-TermTui - Terminal widget with mprocs-style architecture
-Features:
-- termwiz-based VT100 parsing
-- VecDeque scrollback buffer
-- Copy mode with frozen screen snapshots
-- Mouse and keyboard selection
+Get terminal information:
 
-### Fields
+```rust
+let size = term.size();  // Get terminal dimensions
+let is_tty = term.is_tty();  // Check if running in TTY
+```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `parser` | `Arc<Mutex<Parser>>` | |
-| `_master` | `Option<Arc<Mutex<Box<dyn MasterPty + Send>>>>` | |
-| `_child` | `Option<Box<dyn Child + Send + Sync>>` | |
-| `writer` | `Option<Arc<Mutex<Box<dyn Write + Send>>>>` | |
+## Cursor Control
 
+Control the cursor:
+
+```rust
+term.hide_cursor();
+term.show_cursor();
+term.set_cursor_position(x, y);
+```
+
+## Advanced Features
+
+- **Mouse capture** - Enable mouse event handling
+- **Alternate screen** - Switch to alternate screen buffer
+- **Bracketed paste** - Support bracketed paste mode

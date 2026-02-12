@@ -1,0 +1,6 @@
+{
+	"title": "Widgets",
+	"icon": "AppWindow",
+	"pages": ["index", "markdown-preview", "code-diff", "ai-chat", "hotkey-footer", "file-system-tree", "theme-picker"],
+	"defaultOpen": true
+}

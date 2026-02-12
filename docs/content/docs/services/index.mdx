@@ -1,8 +1,75 @@
 ---
-title: Services
-description: Utility services and infrastructure
+title: Services Overview
+description: Background services for application functionality.
 ---
 
-# Services
+## Overview
 
-Utility services and infrastructure components.
+Services provide background functionality for TUI applications. They handle tasks like file watching, repository monitoring, and global hotkey management.
+
+## Available Services
+
+<Cards>
+
+<Card title="FileClocker" />
+
+<Card title="GitWatcher" />
+
+<Card title="RepoWatcher" />
+
+<Card title="HotkeyService" />
+
+</Cards>
+
+## Service Architecture
+
+Services in ratkit are designed to be:
+
+- **Non-blocking** - Run asynchronously without blocking the UI
+- **Event-driven** - Emit events when state changes
+- **Composable** - Combine multiple services together
+- **Resource-efficient** - Minimal overhead when idle
+
+## Usage Pattern
+
+Services typically follow this pattern:
+
+```rust
+use ratkit::services::file_watcher::FileClocker;
+
+// Create the service
+let watcher = FileClocker::new("./src");
+
+// Set up event handling
+watcher.on_change(|event| {
+    println!("File changed: {:?}", event);
+});
+
+// Start watching
+watcher.start()?;
+
+// Later, stop the service
+watcher.stop()?;
+```
+
+## Integration with TUI
+
+Services work seamlessly with ratatui applications:
+
+```rust
+use ratatui::crossterm::event::{self, Event, KeyCode};
+
+loop {
+    // Poll for events with timeout
+    if event::poll(Duration::from_millis(100))? {
+        match event::read()? {
+            Event::Key(key) => handle_key(key),
+            _ => {}
+        }
+    }
+    
+    // Service updates happen automatically
+    // Redraw UI
+    terminal.draw(|frame| render(frame))?;
+}
+```

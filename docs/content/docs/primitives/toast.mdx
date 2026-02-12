@@ -1,10 +1,40 @@
 ---
 title: Toast
-description: Auto-generated documentation from rustdoc
+description: Notification toast component for ephemeral messages.
 ---
 
-# Toast
+## Overview
 
-Toast notification component
-Provides toast notifications with different levels (success, error, info, warning).
+The Toast primitive displays temporary notifications that automatically dismiss after a timeout.
 
+## Basic Usage
+
+```rust
+use ratkit::primitives::toast::{Toast, ToastType};
+
+fn show_notification() {
+    let toast = Toast::new("Operation completed!")
+        .toast_type(ToastType::Success)
+        .duration(Duration::from_secs(3));
+    
+    toast.show();
+}
+```
+
+## Toast Types
+
+Available toast types:
+
+- **Info** - General information
+- **Success** - Successful operations
+- **Warning** - Warning messages
+- **Error** - Error notifications
+
+## Customization
+
+```rust
+let toast = Toast::new("Saved successfully")
+    .toast_type(ToastType::Success)
+    .position(ToastPosition::BottomRight)
+    .duration(Duration::from_secs(5));
+```

@@ -1,0 +1,6 @@
+{
+	"title": "Primitives",
+	"icon": "Component",
+	"pages": ["index", "button", "pane", "dialog", "toast", "statusline", "scroll", "menu-bar", "resizable-grid", "tree-view", "widget-event", "termtui"],
+	"defaultOpen": true
+}

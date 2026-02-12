@@ -1,61 +1,43 @@
 ---
-title: Code-Diff
-description: Auto-generated documentation from rustdoc
+title: CodeDiff
+description: Display code diffs with syntax highlighting.
 ---
 
-# Code-Diff
+## Overview
 
-Code diff widget for displaying side-by-side diffs.
-This module provides a VS Code-style diff viewer widget for ratatui,
-supporting side-by-side display of code changes with syntax highlighting.
-## Features
-- **Side-by-side layout**: Old version on left, new version on right
-- **Line number display**: Independent line numbers per side
-- **Visual markers**: Green for additions, red for deletions
-- **Hunk headers**: Gray bars showing `@@ -X,Y +A,B @@ context`
-- **Alignment**: Matching lines align horizontally
-- **Scrolling**: Support for vertical scrolling through large diffs
-## Structure
-- [`widget`] - The primary widget implementation (`CodeDiff`)
-- [`foundation`] - Core diff types (config, hunks, lines, enums)
-- [`extensions`] - Optional extensions like the file tree sidebar
-- [`CodeDiff`] - The main diff widget
-- [`DiffConfig`] - Display configuration (colors, styles)
-- [`DiffHunk`] - A section of the diff with related changes
-- [`DiffLine`] - A single line in a diff
-- [`DiffLineKind`] - Type of diff line (context, added, removed)
-- [`DiffStyle`] - Display style (side-by-side, unified, inline)
-## Example
+The CodeDiff widget displays code differences with syntax highlighting, line numbers, and color-coded changes.
+
+## Basic Usage
+
 ```rust
-use ratatui_toolkit::code_diff::{CodeDiff, DiffConfig};
-Parse a unified diff
-let diff_text = r#"
---- a/example.rs
-+++ b/example.rs
-@@ -1,4 +1,5 @@
-fn main() {
--    println!("Hello");
-+    println!("Hello, World!");
-+    println!("Goodbye!");
+use ratkit::widgets::code_diff::{CodeDiff, DiffState};
+use ratatui::Frame;
+
+fn render_diff(frame: &mut Frame) {
+    let old_code = "fn hello() {\n    println!(\"Hello\");\n}";
+    let new_code = "fn hello() {\n    println!(\"Hello, World!\");\n}";
+    
+    let diff = CodeDiff::new(old_code, new_code)
+        .language("rust");
+    
+    let mut state = DiffState::default();
+    frame.render_stateful_widget(diff, frame.area(), &mut state);
 }
-"#;
-let widget = CodeDiff::from_unified_diff(diff_text)
-.with_config(DiffConfig::new().show_line_numbers(true));
-Render with ratatui...
-widget.render(area, &mut frame.buffer_mut());
-```
-## Building Diffs Programmatically
-```rust
-use ratatui_toolkit::code_diff::{CodeDiff, DiffHunk, DiffLine, DiffConfig};
-let mut diff = CodeDiff::new()
-.with_file_path("src/lib.rs")
-.with_config(DiffConfig::new());
-let mut hunk = DiffHunk::new(1, 2, 1, 3);
-hunk.add_line(DiffLine::context("fn main() {", 1, 1));
-hunk.add_line(DiffLine::removed("    old_code();", 2));
-hunk.add_line(DiffLine::added("    new_code();", 2));
-hunk.add_line(DiffLine::added("    extra_code();", 3));
-hunk.add_line(DiffLine::context("}", 3, 4));
-diff.add_hunk(hunk);
 ```
 
+## Features
+
+- **Unified diff** - Side-by-side or unified view
+- **Syntax highlighting** - Language-aware coloring
+- **Line numbers** - Optional line number display
+- **Color coding** - Green for additions, red for deletions
+
+## Customization
+
+```rust
+let diff = CodeDiff::new(old_code, new_code)
+    .show_line_numbers(true)
+    .context_lines(3)
+    .addition_style(Style::default().bg(Color::Green))
+    .deletion_style(Style::default().bg(Color::Red));
+```

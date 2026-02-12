@@ -1,0 +1,64 @@
+---
+title: ThemePicker
+description: Interactive theme selection widget.
+---
+
+## Overview
+
+The ThemePicker widget provides an interactive interface for selecting and previewing themes in your TUI application.
+
+## Basic Usage
+
+```rust
+use ratkit::widgets::theme_picker::{ThemePicker, ThemePickerState};
+use ratkit::theme::{Theme, BuiltinTheme};
+use ratatui::Frame;
+
+fn render_theme_picker(frame: &mut Frame) {
+    let themes = vec![
+        Theme::builtin(BuiltinTheme::Dark),
+        Theme::builtin(BuiltinTheme::Light),
+        Theme::builtin(BuiltinTheme::Dracula),
+        Theme::builtin(BuiltinTheme::Monokai),
+    ];
+    
+    let picker = ThemePicker::new(themes);
+    let mut state = ThemePickerState::default();
+    
+    frame.render_stateful_widget(picker, frame.area(), &mut state);
+}
+```
+
+## Features
+
+- **Theme preview** - See theme before applying
+- **Live preview** - Preview on selection change
+- **Custom themes** - Support for custom theme definitions
+- **Search** - Find themes by name
+- **Favorites** - Mark frequently used themes
+
+## Custom Themes
+
+Add your own themes:
+
+```rust
+let custom_theme = Theme::new("Custom")
+    .background(Color::Black)
+    .foreground(Color::White)
+    .accent(Color::Cyan)
+    .error(Color::Red)
+    .warning(Color::Yellow)
+    .success(Color::Green);
+
+let picker = ThemePicker::new(vec![custom_theme]);
+```
+
+## Event Handling
+
+Handle theme selection:
+
+```rust
+if let Some(theme) = state.selected_theme() {
+    app.apply_theme(theme);
+}
+```

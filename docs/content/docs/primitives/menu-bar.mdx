@@ -1,10 +1,38 @@
 ---
-title: Menu-Bar
-description: Auto-generated documentation from rustdoc
+title: MenuBar
+description: Menu bar component for application navigation.
 ---
 
-# Menu-Bar
+## Overview
 
-Menu bar component
-Provides a horizontal menu bar with selectable items.
+The MenuBar primitive provides a traditional menu bar for application navigation and actions.
 
+## Basic Usage
+
+```rust
+use ratkit::primitives::menu_bar::{MenuBar, MenuItem};
+use ratatui::Frame;
+
+fn render_menu(frame: &mut Frame) {
+    let menu = MenuBar::new()
+        .add_item(MenuItem::new("File")
+            .submenu(vec![
+                MenuItem::new("Open").shortcut("Ctrl+O"),
+                MenuItem::new("Save").shortcut("Ctrl+S"),
+                MenuItem::separator(),
+                MenuItem::new("Exit").shortcut("Ctrl+Q"),
+            ]))
+        .add_item(MenuItem::new("Edit"));
+    
+    frame.render_widget(menu, top_area);
+}
+```
+
+## Keyboard Navigation
+
+Menu bars support keyboard navigation:
+
+- **Alt+Letter** - Activate menu by access key
+- **Arrow Keys** - Navigate items
+- **Enter** - Select item
+- **Esc** - Close menu

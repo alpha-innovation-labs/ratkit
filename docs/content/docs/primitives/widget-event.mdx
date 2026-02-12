@@ -1,0 +1,50 @@
+---
+title: WidgetEvent
+description: Event handling system for widgets with mouse and keyboard support.
+---
+
+## Overview
+
+The WidgetEvent primitive provides a unified event handling system for widgets, supporting both mouse and keyboard interactions.
+
+## Basic Usage
+
+```rust
+use ratkit::primitives::widget_event::{WidgetEvent, EventHandler};
+use ratatui::crossterm::event::Event;
+
+fn handle_events(event: Event) {
+    let widget_event = WidgetEvent::from(event);
+    
+    match widget_event {
+        WidgetEvent::Click { x, y } => {
+            // Handle mouse click
+        }
+        WidgetEvent::Key(key) => {
+            // Handle key press
+        }
+        _ => {}
+    }
+}
+```
+
+## Event Types
+
+Supported event types:
+
+- **Click** - Mouse click events
+- **DoubleClick** - Double-click events
+- **Scroll** - Scroll wheel events
+- **Key** - Keyboard events
+- **Resize** - Terminal resize events
+- **Focus** - Focus change events
+
+## Event Handlers
+
+Create reusable event handlers:
+
+```rust
+let handler = EventHandler::new()
+    .on_click(|x, y| println!("Clicked at ({}, {})", x, y))
+    .on_key(|key| println!("Key pressed: {:?}", key));
+```

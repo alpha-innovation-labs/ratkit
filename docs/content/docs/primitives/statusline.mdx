@@ -1,33 +1,42 @@
 ---
-title: Statusline
-description: Auto-generated documentation from rustdoc
+title: StatusLine
+description: Status bar component for displaying application information.
 ---
 
-# Statusline
+## Overview
 
-A status-line widget that can stack up indicators
-on the left and right end.
-If you use the constants SLANT_TL_BR and SLANT_BL_TR as
-separator you can do neo-vim/neovim style statusline.
-This is adapted from rat-widget's StatusLineStacked.
-## Example
+The StatusLine primitive provides a status bar for displaying application state, information, and context.
+
+## Basic Usage
+
 ```rust
-use ratatui::style::{Color, Style};
-use ratatui::text::Span;
-use ratatui_toolkit::statusline_stacked::{StatusLineStacked, SLANT_BL_TR, SLANT_TL_BR};
-StatusLineStacked::new()
-.start(
-Span::from(" STATUS ").style(Style::new().fg(Color::Black).bg(Color::DarkGray)),
-Span::from(SLANT_TL_BR).style(Style::new().fg(Color::DarkGray).bg(Color::Green)),
-)
-.start(
-Span::from(" OPERATIONAL ").style(Style::new().fg(Color::Black).bg(Color::Green)),
-Span::from(SLANT_TL_BR).style(Style::new().fg(Color::Green)),
-)
-.center("Some status message...")
-.end(
-Span::from(" INFO ").style(Style::new().fg(Color::Black).bg(Color::Cyan)),
-Span::from(SLANT_BL_TR).style(Style::new().fg(Color::Cyan)),
-);
+use ratkit::primitives::statusline::StatusLine;
+use ratatui::Frame;
+
+fn render_status(frame: &mut Frame) {
+    let status = StatusLine::new()
+        .left("Ready")
+        .right("UTF-8 | Rust");
+    
+    frame.render_widget(status, bottom_area);
+}
 ```
 
+## Sections
+
+The status line has three sections:
+
+- **Left** - Primary status information
+- **Center** - Secondary information
+- **Right** - Contextual details
+
+## Dynamic Updates
+
+Update status based on application state:
+
+```rust
+let status = StatusLine::new()
+    .left(format!("File: {}", filename))
+    .center(format!("Line: {}, Col: {}", line, col))
+    .right(if modified { "[Modified]" } else { "" });
+```

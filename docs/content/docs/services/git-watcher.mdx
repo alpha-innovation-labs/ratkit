@@ -1,38 +1,61 @@
 ---
-title: Git-Watcher
-description: Auto-generated documentation from rustdoc
+title: GitWatcher
+description: Monitor git repository changes.
 ---
 
-# Git-Watcher
+## Overview
 
-Git watching service for detecting git repository changes.
-A reusable, configurable git watcher that monitors the `.git` directory
-for changes and can be used to trigger updates only when git state changes.
-## Example
+The GitWatcher service tracks changes in git repositories including branch status, commits, and working directory state.
+
+## Basic Usage
+
 ```rust
-use ratatui_toolkit::services::git_watcher::GitWatcher;
-use std::path::Path;
-Create a watcher for a git repository
-let mut watcher = GitWatcher::new().unwrap();
-watcher.watch(Path::new("/path/to/repo")).unwrap();
-In your event loop:
-if watcher.check_for_changes() {
-println!("Git state changed!");
+use ratkit::services::git_watcher::{GitWatcher, GitEvent};
+
+fn setup_git_watcher() -> std::io::Result<()> {
+    let watcher = GitWatcher::new("./")
+        .on_change(|event: GitEvent| {
+            match event {
+                GitEvent::BranchChanged { old, new } => {
+                    println!("Branch changed: {} -> {}", old, new);
+                }
+                GitEvent::CommitsAhead(ahead) => {
+                    println!("{} commits ahead of remote", ahead);
+                }
+                GitEvent::CommitsBehind(behind) => {
+                    println!("{} commits behind remote", behind);
+                }
+                GitEvent::StatusChanged(status) => {
+                    println!("Working directory changed");
+                    println!("Modified: {:?}", status.modified);
+                    println!("Staged: {:?}", status.staged);
+                }
+            }
+        });
+    
+    watcher.start()?;
+    
+    std::thread::sleep(std::time::Duration::from_secs(60));
+    
+    watcher.stop()?;
+    Ok(())
 }
 ```
 
-## Struct: GitWatcher
+## Event Types
 
-A git watcher for detecting git repository state changes.
-Uses the `notify` crate internally to watch the `.git` directory
-for changes. Provides a non-blocking interface suitable for use
-in TUI event loops.
-This is useful for caching git statistics and only recomputing
-them when the git state actually changes, rather than polling
-at a fixed interval.
+- **BranchChanged** - Current branch has changed
+- **CommitsAhead** - Local commits not pushed
+- **CommitsBehind** - Remote commits not pulled
+- **StatusChanged** - Working directory status changed
 
-### Fields
+## Repository Status
 
-| Field | Type | Description |
-|-------|------|-------------|
+Access current repository state:
 
+```rust
+let status = watcher.status();
+println!("Current branch: {}", status.branch);
+println!("Modified files: {}", status.modified.len());
+println!("Staged files: {}", status.staged.len());
+```

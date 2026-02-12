@@ -1,0 +1,6 @@
+{
+	"title": "Getting Started",
+	"icon": "FastForward",
+	"pages": ["index", "installation", "basic-usage"],
+	"defaultOpen": true
+}

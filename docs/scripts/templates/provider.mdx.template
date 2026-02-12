@@ -1,0 +1,147 @@
+---
+title: {{PROVIDER_NAME}}
+---
+
+AISDK provides first-class support for {{PROVIDER_NAME}} with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the {{PROVIDER_NAME}} provider feature:
+
+```bash
+cargo add aisdk --features {{PROVIDER_LOWERCASE}}
+```
+
+This installs AISDK with the {{PROVIDER_NAME}} provider enabled. Once you have enabled the {{PROVIDER_NAME}} provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `{{PROVIDER_NAME}}::model_name()`, where **model_name** is the {{PROVIDER_NAME}} model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::{{PROVIDER_NAME}};
+
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}();
+```
+
+This initializes the provider with:
+
+* Model: `"{{EXAMPLE_MODEL_STRING}}"`
+* API key from environment (if set with `{{ENV_VAR_NAME}}`)
+* {{PROVIDER_NAME}}'s default base URL ({{DEFAULT_BASE_URL}})
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::{{PROVIDER_NAME}},
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}();
+
+    let response = LanguageModelRequest::builder()
+        .model({{PROVIDER_LOWERCASE}})
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `{{PROVIDER_NAME}}::builder()`
+
+### API Key
+
+```rust
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `{{ENV_VAR_NAME}}` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .base_url("{{DEFAULT_BASE_URL}}")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .provider_name("{{PROVIDER_NAME}}")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .api_key("your-api-key")
+    .base_url("{{DEFAULT_BASE_URL}}")
+    .provider_name("{{PROVIDER_NAME}}")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::{{PROVIDER_NAME}};
+
+// Specify model as a string at runtime
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::model_name("{{EXAMPLE_MODEL_STRING}}");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::{{PROVIDER_NAME}},
+};
+
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<DynamicModel>::builder()
+    .model_name("{{EXAMPLE_MODEL_STRING}}")
+    .api_key("your-api-key")
+		.base_url("{{DEFAULT_BASE_URL}}")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `{{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

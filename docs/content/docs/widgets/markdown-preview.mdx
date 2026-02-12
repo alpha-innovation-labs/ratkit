@@ -1,0 +1,60 @@
+---
+title: MarkdownPreview
+description: Render markdown content in the terminal.
+---
+
+## Overview
+
+The MarkdownPreview widget renders markdown content directly in the terminal with proper formatting, headers, lists, code blocks, and more.
+
+## Basic Usage
+
+```rust
+use ratkit::widgets::markdown_preview::{MarkdownPreview, MarkdownState};
+use ratatui::Frame;
+
+fn render_markdown(frame: &mut Frame) {
+    let content = r#"# Hello World
+
+This is a **bold** text and *italic* text.
+
+## Features
+
+- Item 1
+- Item 2
+- Item 3
+
+```rust
+fn main() {
+    println!("Hello!");
+}
+```
+"#;
+
+    let preview = MarkdownPreview::new(content);
+    let mut state = MarkdownState::default();
+    
+    frame.render_stateful_widget(preview, frame.area(), &mut state);
+}
+```
+
+## Supported Markdown
+
+- **Headers** - H1 through H6
+- **Text formatting** - Bold, italic, strikethrough
+- **Lists** - Ordered and unordered
+- **Code blocks** - With syntax highlighting
+- **Links** - Clickable URLs
+- **Blockquotes** - Indented quotes
+- **Horizontal rules** - Section dividers
+
+## Styling
+
+Customize the appearance:
+
+```rust
+let preview = MarkdownPreview::new(content)
+    .heading_style(Style::default().fg(Color::Cyan))
+    .code_style(Style::default().bg(Color::Black))
+    .link_style(Style::default().fg(Color::Blue).add_modifier(Modifier::UNDERLINED));
+```

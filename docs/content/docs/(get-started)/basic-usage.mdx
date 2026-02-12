@@ -1,0 +1,167 @@
+---
+title: Basic Usage
+---
+
+This guide will walk you through the basics of using ratkit to build a TUI application.
+
+## Setting Up Your Application
+
+A basic ratkit application follows the standard ratatui pattern with ratkit components:
+
+```rust
+use ratatui::{
+    crossterm::event::{self, Event, KeyCode},
+    DefaultTerminal,
+    Frame,
+};
+use ratkit::primitives::button::{Button, ButtonState};
+
+fn main() -> std::io::Result<()> {
+    let mut terminal = ratatui::init();
+    let app_result = run(&mut terminal);
+    ratatui::restore();
+    app_result
+}
+
+fn run(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
+    let mut button_state = ButtonState::default();
+    
+    loop {
+        terminal.draw(|frame| render(frame, &mut button_state))?;
+        
+        if let Event::Key(key) = event::read()? {
+            match key.code {
+                KeyCode::Char('q') | KeyCode::Esc => break,
+                KeyCode::Enter => {
+                    // Handle button click
+                }
+                _ => {}
+            }
+        }
+    }
+    
+    Ok(())
+}
+
+fn render(frame: &mut Frame, button_state: &mut ButtonState) {
+    let button = Button::new("Click Me")
+        .style(Style::default().fg(Color::White))
+        .highlight_style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD));
+    
+    frame.render_stateful_widget(button, frame.area(), button_state);
+}
+```
+
+## Using Primitives
+
+### Button
+
+The Button primitive provides interactive button functionality:
+
+```rust
+use ratkit::primitives::button::{Button, ButtonState};
+use ratatui::style::{Style, Color, Modifier};
+
+let button = Button::new("Submit")
+    .style(Style::default().fg(Color::White))
+    .highlight_style(Style::default().fg(Color::Green).add_modifier(Modifier::BOLD));
+```
+
+### Dialog
+
+Create modal dialogs for user interactions:
+
+```rust
+use ratkit::primitives::dialog::{Dialog, DialogAction};
+
+let dialog = Dialog::new()
+    .title("Confirm")
+    .content("Are you sure?")
+    .button("Yes", DialogAction::Confirm)
+    .button("No", DialogAction::Cancel);
+```
+
+### Scroll Area
+
+Add scrollable content to your application:
+
+```rust
+use ratkit::primitives::scroll::{ScrollArea, ScrollState};
+
+let mut scroll_state = ScrollState::default();
+let scroll_area = ScrollArea::vertical()
+    .content(long_text)
+    .scroll_state(&mut scroll_state);
+```
+
+## Using Widgets
+
+### Markdown Preview
+
+Render markdown content directly in your TUI:
+
+```rust
+use ratkit::widgets::markdown_preview::MarkdownPreview;
+
+let markdown = MarkdownPreview::new("# Hello\n\nThis is **bold** text.");
+frame.render_widget(markdown, area);
+```
+
+### File System Tree
+
+Display a browsable file tree:
+
+```rust
+use ratkit::widgets::file_system_tree::{FileSystemTree, FileSystemTreeState};
+
+let tree = FileSystemTree::new("./src");
+let mut state = FileSystemTreeState::default();
+frame.render_stateful_widget(tree, area, &mut state);
+```
+
+## Using Services
+
+### File Watcher
+
+Monitor files for changes:
+
+```rust
+use ratkit::services::file_watcher::FileWatcher;
+
+let watcher = FileWatcher::new("./src")
+    .on_change(|event| {
+        println!("File changed: {:?}", event);
+    });
+```
+
+### Hotkey Service
+
+Manage global hotkeys:
+
+```rust
+use ratkit::services::hotkey_service::HotkeyService;
+
+let hotkeys = HotkeyService::new()
+    .register("ctrl+s", || println!("Save triggered!"))
+    .register("ctrl+q", || println!("Quit triggered!"));
+```
+
+## Styling
+
+ratkit components support ratatui's styling system:
+
+```rust
+use ratatui::style::{Style, Color, Modifier};
+
+let style = Style::default()
+    .fg(Color::Cyan)
+    .bg(Color::Black)
+    .add_modifier(Modifier::BOLD);
+```
+
+## Next Steps
+
+- Explore the [Primitives](/docs/primitives) documentation for detailed component information
+- Check out the [Widgets](/docs/widgets) section for advanced components
+- Learn about [Services](/docs/services) for background functionality
+- View the [examples](https://github.com/Alpha-Innovation-Labs/ratkit/tree/main/examples) for complete applications

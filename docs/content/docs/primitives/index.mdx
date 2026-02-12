@@ -1,8 +1,77 @@
 ---
-title: Primitives
-description: Basic UI building blocks
+title: Primitives Overview
+description: Foundational UI components for building TUI applications with ratkit.
 ---
 
-# Primitives
+## Overview
 
-Basic UI building blocks that form the foundation of terminal UI interfaces.
+Primitives are the foundational building blocks of ratkit. They provide essential UI components that you can use to construct terminal interfaces.
+
+## Available Primitives
+
+<Cards>
+
+<Card title="Button" />
+
+<Card title="Pane" />
+
+<Card title="Dialog" />
+
+<Card title="Toast" />
+
+<Card title="StatusLine" />
+
+<Card title="Scroll" />
+
+<Card title="MenuBar" />
+
+<Card title="ResizableGrid" />
+
+<Card title="TreeView" />
+
+<Card title="WidgetEvent" />
+
+<Card title="TermTUI" />
+
+</Cards>
+
+## Common Features
+
+All primitives share these common characteristics:
+
+- **Ratatui Integration** - Work seamlessly with ratatui's rendering system
+- **Customizable Styling** - Full control over colors, borders, and modifiers
+- **State Management** - Built-in state handling for interactive components
+- **Event Handling** - Support for keyboard and mouse events
+- **Accessibility** - Keyboard navigation and focus management
+
+## Usage Pattern
+
+Most primitives follow a similar usage pattern:
+
+```rust
+use ratkit::primitives::button::{Button, ButtonState};
+use ratatui::Frame;
+
+// Create the component
+let button = Button::new("Click Me");
+
+// Manage state
+let mut state = ButtonState::default();
+
+// Render
+frame.render_stateful_widget(button, area, &mut state);
+```
+
+## Customization
+
+Primitives can be customized using ratatui's style system:
+
+```rust
+use ratatui::style::{Style, Color, Modifier};
+
+let style = Style::default()
+    .fg(Color::Cyan)
+    .bg(Color::Black)
+    .add_modifier(Modifier::BOLD);
+```

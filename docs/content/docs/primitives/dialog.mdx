@@ -1,10 +1,51 @@
 ---
 title: Dialog
-description: Auto-generated documentation from rustdoc
+description: Modal dialog component for user interactions.
 ---
 
-# Dialog
+## Overview
 
-Dialog component
-Provides modal dialog widgets with customizable buttons and styles.
+The Dialog primitive provides modal dialog functionality for user confirmations, alerts, and input collection.
 
+## Basic Usage
+
+```rust
+use ratkit::primitives::dialog::{Dialog, DialogAction};
+use ratatui::Frame;
+
+fn show_dialog(frame: &mut Frame) {
+    let dialog = Dialog::new()
+        .title("Confirm Action")
+        .content("Are you sure you want to continue?")
+        .button("Yes", DialogAction::Confirm)
+        .button("No", DialogAction::Cancel);
+    
+    frame.render_widget(dialog, frame.area());
+}
+```
+
+## Actions
+
+Handle dialog results:
+
+```rust
+match dialog.show() {
+    DialogAction::Confirm => {
+        // User confirmed
+    }
+    DialogAction::Cancel => {
+        // User cancelled
+    }
+}
+```
+
+## Styling
+
+Customize dialog appearance:
+
+```rust
+let dialog = Dialog::new()
+    .title("Warning")
+    .title_style(Style::default().fg(Color::Yellow))
+    .border_style(Style::default().fg(Color::Red));
+```

@@ -1,44 +1,69 @@
 ---
-title: File-Watcher
-description: Auto-generated documentation from rustdoc
+title: FileWatcher
+description: Monitor files and directories for changes.
 ---
 
-# File-Watcher
+## Overview
 
-File watching service for detecting file system changes.
-A reusable, configurable file watcher that can be used across multiple
-components in the toolkit. Supports watching single files or entire
-directory trees.
-## Example
+The FileWatcher service monitors files and directories for changes such as creation, modification, deletion, and renaming.
+
+## Basic Usage
+
 ```rust
-use ratatui_toolkit::services::file_watcher::{FileWatcher, WatchMode};
-use std::path::Path;
-Watch a single file
-let mut watcher = FileWatcher::for_file().unwrap();
-watcher.watch(Path::new("README.md")).unwrap();
-In your event loop:
-if watcher.check_for_changes() {
-println!("File changed!");
-}
-Watch a directory recursively
-let mut dir_watcher = FileWatcher::for_directory().unwrap();
-dir_watcher.watch(Path::new("./src")).unwrap();
-Get which paths changed
-let changed = dir_watcher.get_changed_paths();
-for path in changed {
-println!("Changed: {}", path.display());
+use ratkit::services::file_watcher::{FileWatcher, FileEvent};
+
+fn setup_watcher() -> std::io::Result<()> {
+    let watcher = FileWatcher::new("./src")
+        .on_change(|event: FileEvent| {
+            match event {
+                FileEvent::Created(path) => {
+                    println!("Created: {:?}", path);
+                }
+                FileEvent::Modified(path) => {
+                    println!("Modified: {:?}", path);
+                }
+                FileEvent::Deleted(path) => {
+                    println!("Deleted: {:?}", path);
+                }
+                FileEvent::Renamed(old, new) => {
+                    println!("Renamed: {:?} -> {:?}", old, new);
+                }
+            }
+        });
+    
+    watcher.start()?;
+    
+    // Keep the watcher alive
+    std::thread::sleep(std::time::Duration::from_secs(60));
+    
+    watcher.stop()?;
+    Ok(())
 }
 ```
 
-## Struct: FileWatcher
+## Event Types
 
-A file watcher for detecting file system changes.
-Uses the `notify` crate internally to watch files and directories
-for changes. Provides a non-blocking interface suitable for use
-in TUI event loops.
+- **Created** - New file or directory created
+- **Modified** - File content modified
+- **Deleted** - File or directory deleted
+- **Renamed** - File or directory renamed
 
-### Fields
+## Filtering
 
-| Field | Type | Description |
-|-------|------|-------------|
+Filter which files to watch:
 
+```rust
+let watcher = FileWatcher::new("./src")
+    .include(vec!["*.rs", "*.toml"])  // Only watch Rust files
+    .exclude(vec!["target/*", "*.lock"])  // Ignore build directory
+    .recursive(true);  // Watch subdirectories
+```
+
+## Debouncing
+
+Prevent duplicate events:
+
+```rust
+let watcher = FileWatcher::new("./src")
+    .debounce(Duration::from_millis(500));
+```

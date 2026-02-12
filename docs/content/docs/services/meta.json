@@ -1,0 +1,6 @@
+{
+	"title": "Services",
+	"icon": "Server",
+	"pages": ["index", "file-watcher", "git-watcher", "repo-watcher", "hotkey-service"],
+	"defaultOpen": true
+}

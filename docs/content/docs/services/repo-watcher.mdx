@@ -1,35 +1,68 @@
 ---
-title: Repo-Watcher
-description: Auto-generated documentation from rustdoc
+title: RepoWatcher
+description: Repository-wide monitoring service.
 ---
 
-# Repo-Watcher
+## Overview
 
-Repository watcher for detecting git and working tree changes.
-Combines the git watcher (for `.git` state changes) with a file watcher
-(for working tree edits) and provides a cached list of modified files
-via `git status --porcelain`.
-## Example
+The RepoWatcher service combines file watching and git watching to provide comprehensive repository monitoring. It's ideal for building IDE-like applications.
+
+## Basic Usage
+
 ```rust
-use ratatui_toolkit::services::repo_watcher::RepoWatcher;
-use std::path::Path;
-let mut watcher = RepoWatcher::new().unwrap();
-watcher.watch(Path::new("/path/to/repo")).unwrap();
-In your event loop:
-if watcher.check_for_changes() {
-let changes = watcher.get_change_set();
-for path in changes.all_paths() {
-println!("Changed: {}", path.display());
-}
+use ratkit::services::repo_watcher::{RepoWatcher, RepoEvent};
+
+fn setup_repo_watcher() -> std::io::Result<()> {
+    let watcher = RepoWatcher::new("./")
+        .on_change(|event: RepoEvent| {
+            match event {
+                RepoEvent::File(event) => {
+                    handle_file_event(event);
+                }
+                RepoEvent::Git(event) => {
+                    handle_git_event(event);
+                }
+            }
+        });
+    
+    watcher.start()?;
+    
+    std::thread::sleep(std::time::Duration::from_secs(60));
+    
+    watcher.stop()?;
+    Ok(())
 }
 ```
 
-## Struct: RepoWatcher
+## Combined Events
 
-A watcher that combines git and working tree signals.
+RepoWatcher emits both file and git events:
 
-### Fields
+```rust
+watcher.on_change(|event| {
+    match event {
+        RepoEvent::File(FileEvent::Modified(path)) => {
+            // File was modified
+        }
+        RepoEvent::Git(GitEvent::StatusChanged(_)) => {
+            // Git status changed
+        }
+    }
+});
+```
 
-| Field | Type | Description |
-|-------|------|-------------|
+## Configuration
 
+Configure both underlying services:
+
+```rust
+let watcher = RepoWatcher::new("./")
+    .file_config(|config| {
+        config
+            .include(vec!["*.rs"])
+            .exclude(vec!["target/*"])
+    })
+    .git_config(|config| {
+        config.poll_interval(Duration::from_secs(5))
+    });
+```

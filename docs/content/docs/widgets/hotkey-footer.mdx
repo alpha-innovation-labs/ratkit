@@ -1,21 +1,51 @@
 ---
-title: Hotkey-Footer
-description: Auto-generated documentation from rustdoc
+title: HotkeyFooter
+description: Display keyboard shortcuts at the bottom of the screen.
 ---
 
-# Hotkey-Footer
+## Overview
 
-Hotkey footer component
-A styled hotkey footer bar component (aerospace-tui style)
-Renders a single line with alternating hotkey/description pairs.
+The HotkeyFooter widget displays available keyboard shortcuts and commands at the bottom of the screen, making it easy for users to discover functionality.
 
-## Struct: HotkeyFooterBuilder
+## Basic Usage
 
-Builder pattern for creating hotkey footers
+```rust
+use ratkit::widgets::hotkey_footer::{HotkeyFooter, Hotkey};
+use ratatui::Frame;
 
-### Fields
+fn render_footer(frame: &mut Frame) {
+    let footer = HotkeyFooter::new(vec![
+        Hotkey::new("q", "Quit"),
+        Hotkey::new("s", "Save"),
+        Hotkey::new("n", "New File"),
+        Hotkey::new("?", "Help"),
+    ]);
+    
+    frame.render_widget(footer, bottom_area);
+}
+```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `items` | `Vec<HotkeyItem>` | |
+## Features
 
+- **Grouped shortcuts** - Organize by category
+- **Dynamic updates** - Change based on context
+- **Custom styling** - Match your application theme
+- **Overflow handling** - Gracefully handle many shortcuts
+
+## Contextual Shortcuts
+
+Update shortcuts based on application state:
+
+```rust
+let footer = if editing {
+    HotkeyFooter::new(vec![
+        Hotkey::new("esc", "Cancel"),
+        Hotkey::new("ctrl+s", "Save"),
+    ])
+} else {
+    HotkeyFooter::new(vec![
+        Hotkey::new("e", "Edit"),
+        Hotkey::new("d", "Delete"),
+    ])
+};
+```

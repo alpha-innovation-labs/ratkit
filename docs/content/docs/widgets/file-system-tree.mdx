@@ -1,10 +1,55 @@
 ---
-title: File-System-Tree
-description: Auto-generated documentation from rustdoc
+title: FileSystemTree
+description: Browsable file system tree widget.
 ---
 
-# File-System-Tree
+## Overview
 
-File system tree browser component
-Provides a tree view for browsing file system directories.
+The FileSystemTree widget provides a browsable file system tree with support for file operations, selection, and navigation.
 
+## Basic Usage
+
+```rust
+use ratkit::widgets::file_system_tree::{FileSystemTree, FileTreeState};
+use ratatui::Frame;
+
+fn render_file_tree(frame: &mut Frame) {
+    let tree = FileSystemTree::new("./src");
+    let mut state = FileTreeState::default();
+    
+    frame.render_stateful_widget(tree, frame.area(), &mut state);
+}
+```
+
+## Features
+
+- **File icons** - Different icons for file types
+- **Directory navigation** - Expand/collapse directories
+- **File selection** - Single and multi-select
+- **Operations** - Delete, rename, create
+- **Filtering** - Filter by name or type
+
+## Navigation
+
+Tree navigation with keyboard:
+
+- **↑/↓** - Move selection
+- **→** - Expand directory
+- **←** - Collapse directory
+- **Enter** - Open file/expand directory
+- **Space** - Toggle selection
+
+## Customization
+
+```rust
+let tree = FileSystemTree::new("./src")
+    .show_hidden(false)
+    .filter(|path| path.extension() == Some("rs"))
+    .file_icon(|path| {
+        if path.extension() == Some("rs") {
+            "🦀"
+        } else {
+            "📄"
+        }
+    });
+```

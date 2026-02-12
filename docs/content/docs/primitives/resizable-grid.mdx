@@ -1,0 +1,53 @@
+---
+title: ResizableGrid
+description: Flexible grid layout with draggable resize handles.
+---
+
+## Overview
+
+The ResizableGrid primitive provides a flexible grid layout where users can resize columns and rows by dragging handles.
+
+## Basic Usage
+
+```rust
+use ratkit::primitives::resizable_grid::ResizableGrid;
+use ratatui::Frame;
+
+fn render_grid(frame: &mut Frame) {
+    let grid = ResizableGrid::new(3, 3)
+        .column_constraints(vec![
+            Constraint::Percentage(33),
+            Constraint::Percentage(33),
+            Constraint::Percentage(33),
+        ])
+        .resizable(true);
+    
+    frame.render_widget(grid, frame.area());
+}
+```
+
+## Constraints
+
+Define how space is distributed:
+
+```rust
+let grid = ResizableGrid::new(2, 2)
+    .column_constraints(vec![
+        Constraint::Length(20),      // Fixed width
+        Constraint::Min(10),         // Minimum width
+        Constraint::Percentage(50),  // Percentage of remaining space
+    ]);
+```
+
+## State Management
+
+Track resize operations:
+
+```rust
+let mut state = ResizableGridState::default();
+
+// In event handling
+if let Some((col, delta)) = state.get_resize_delta() {
+    // Apply resize
+}
+```

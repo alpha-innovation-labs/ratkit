@@ -1,0 +1,76 @@
+---
+title: HotkeyService
+description: Global hotkey management for applications.
+---
+
+## Overview
+
+The HotkeyService provides global hotkey management for TUI applications, allowing you to register keyboard shortcuts that work application-wide.
+
+## Basic Usage
+
+```rust
+use ratkit::services::hotkey_service::{HotkeyService, KeyCombo};
+
+fn setup_hotkeys() -> std::io::Result<()> {
+    let service = HotkeyService::new()
+        .register("ctrl+s", || {
+            println!("Save triggered!");
+            save_file();
+        })
+        .register("ctrl+o", || {
+            println!("Open triggered!");
+            open_file();
+        })
+        .register("ctrl+q", || {
+            println!("Quit triggered!");
+            std::process::exit(0);
+        });
+    
+    service.start()?;
+    
+    Ok(())
+}
+```
+
+## Key Combinations
+
+Define complex key combinations:
+
+```rust
+use ratkit::services::hotkey_service::KeyCombo;
+
+let combo = KeyCombo::new()
+    .ctrl()
+    .shift()
+    .key('s'); // Ctrl+Shift+S
+
+service.register_combo(combo, || {
+    println!("Save As triggered!");
+});
+```
+
+## Contextual Hotkeys
+
+Enable/disable hotkeys based on context:
+
+```rust
+service.register("ctrl+z", || undo())
+    .when(|| is_editing()); // Only active when editing
+```
+
+## Event Integration
+
+Works with ratatui's event system:
+
+```rust
+loop {
+    if let Event::Key(key) = event::read()? {
+        if service.handle_key(key) {
+            // Hotkey was handled
+            continue;
+        }
+        // Process other keys
+    }
+}
+```

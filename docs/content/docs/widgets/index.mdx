@@ -1,8 +1,61 @@
 ---
-title: Widgets
-description: Complex interactive components for advanced terminal UI layouts.
+title: Widgets Overview
+description: Advanced pre-built widgets for common TUI use cases.
 ---
 
-# Widgets
+## Overview
 
-Complex interactive components for advanced terminal UI layouts.
+Widgets are advanced components that combine multiple primitives to solve common TUI application needs. They provide ready-to-use solutions for complex UI patterns.
+
+## Available Widgets
+
+<Cards>
+
+<Card title="MarkdownPreview" />
+
+<Card title="CodeDiff" />
+
+<Card title="AIChat" />
+
+<Card title="HotkeyFooter" />
+
+<Card title="FileSystemTree" />
+
+<Card title="ThemePicker" />
+
+</Cards>
+
+## Widget vs Primitive
+
+Widgets differ from primitives in several ways:
+
+| Aspect | Primitives | Widgets |
+|--------|-----------|---------|
+| Complexity | Simple, single-purpose | Complex, multi-component |
+| State | Minimal | Rich state management |
+| Use Case | Building blocks | Complete solutions |
+| Customization | High | Moderate |
+
+## Usage Pattern
+
+Widgets follow a similar pattern to primitives but often include more sophisticated state:
+
+```rust
+use ratkit::widgets::markdown_preview::{MarkdownPreview, MarkdownState};
+use ratatui::Frame;
+
+let preview = MarkdownPreview::new("# Hello\n\nWorld!");
+let mut state = MarkdownState::default();
+
+frame.render_stateful_widget(preview, area, &mut state);
+```
+
+## Styling
+
+Widgets respect ratkit's theming system while providing their own sensible defaults:
+
+```rust
+let widget = MarkdownPreview::new(content)
+    .theme(Theme::Dark)
+    .code_theme(CodeTheme::Dracula);
+```

@@ -1,27 +1,65 @@
 ---
 title: Button
-description: Auto-generated documentation from rustdoc
+description: Interactive button component with multiple states and styling options.
 ---
 
-# Button
+## Overview
 
-Button component
-Provides clickable button widgets for UI interactions.
-## Structure
-- [`Button`] - The button widget struct
-- [`constructors`] - Constructor functions (`new`, builder methods)
-- [`methods`] - Instance methods (`render`, `is_clicked`, etc.)
-- [`traits`] - Trait implementations (`Default`)
-- [`render_title_with_buttons`] - Standalone function for rendering title with buttons
-## Example
+The Button primitive provides an interactive button component for TUI applications. It supports multiple states, custom styling, and keyboard navigation.
+
+## Basic Usage
+
 ```rust
-use ratatui::style::{Color, Style};
-use ratatui_toolkit::Button;
-let button = Button::new("Click Me")
-.normal_style(Style::default().fg(Color::White))
-.hover_style(Style::default().fg(Color::Yellow));
-```
-## Click Detection
-Buttons track their own area for click detection. Use [`Button::is_clicked`] to
-check if a click occurred within the button's bounds after rendering.
+use ratkit::primitives::button::{Button, ButtonState};
+use ratatui::Frame;
 
+fn render_button(frame: &mut Frame) {
+    let button = Button::new("Click Me");
+    let mut state = ButtonState::default();
+    
+    frame.render_stateful_widget(button, frame.area(), &mut state);
+}
+```
+
+## Styling
+
+Customize button appearance with styles:
+
+```rust
+use ratatui::style::{Style, Color, Modifier};
+
+let button = Button::new("Submit")
+    .style(Style::default().fg(Color::White))
+    .highlight_style(Style::default()
+        .fg(Color::Yellow)
+        .add_modifier(Modifier::BOLD));
+```
+
+## States
+
+Buttons have three states:
+
+- **Normal** - Default state
+- **Highlighted** - When focused or hovered
+- **Pressed** - When activated
+
+## Event Handling
+
+Handle button interactions:
+
+```rust
+use ratatui::crossterm::event::{Event, KeyCode};
+
+if let Event::Key(key) = event::read()? {
+    match key.code {
+        KeyCode::Enter if button_state.is_focused() => {
+            // Button clicked
+        }
+        _ => {}
+    }
+}
+```
+
+## Examples
+
+See the [button demo](https://github.com/Alpha-Innovation-Labs/ratkit/tree/main/examples) for a complete working example.

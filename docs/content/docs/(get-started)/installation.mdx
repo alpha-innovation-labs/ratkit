@@ -1,0 +1,84 @@
+---
+title: Installation
+---
+
+## Installation
+
+To add ratkit to your Rust project, you can use cargo:
+
+```bash
+cargo add ratkit
+```
+
+Or add it to your `Cargo.toml`:
+
+```toml
+[dependencies]
+ratkit = "0.2.5"
+```
+
+## Dependencies
+
+ratkit is built on top of [ratatui](https://github.com/ratatui-org/ratatui) and requires it as a dependency. Make sure you also have ratatui and crossterm (or your preferred backend) in your dependencies:
+
+```toml
+[dependencies]
+ratatui = "0.29"
+crossterm = "0.28"
+ratkit = "0.2.5"
+```
+
+## Feature Flags
+
+ratkit provides several optional features that you can enable based on your needs:
+
+### Default Features
+
+By default, ratkit includes all primitives and widgets. If you want a minimal installation:
+
+```toml
+[dependencies]
+ratkit = { version = "0.2.5", default-features = false }
+```
+
+### Individual Features
+
+You can enable specific component categories:
+
+```toml
+[dependencies]
+ratkit = { 
+    version = "0.2.5", 
+    features = ["primitives", "widgets"] 
+}
+```
+
+Available features:
+
+- **`primitives`** - Core UI primitives (button, dialog, pane, etc.)
+- **`widgets`** - Advanced widgets (markdown-preview, code-diff, ai-chat, etc.)
+- **`services`** - Background services (file-watcher, git-watcher, etc.)
+- **`full`** - Enable all features (default)
+
+## Verifying Installation
+
+Create a simple test to verify ratkit is working:
+
+```rust
+use ratatui::DefaultTerminal;
+use ratkit::primitives::button::Button;
+
+fn main() -> std::io::Result<()> {
+    let terminal = ratatui::init();
+    
+    let button = Button::new("Hello ratkit!");
+    println!("ratkit is installed and working!");
+    
+    ratatui::restore();
+    Ok(())
+}
+```
+
+## Next Steps
+
+Now that you have ratkit installed, check out the [Basic Usage](/docs/basic-usage) guide to start building your TUI application.

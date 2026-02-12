@@ -1,0 +1,49 @@
+---
+title: Scroll
+description: Scrollable content area with vertical and horizontal scrolling.
+---
+
+## Overview
+
+The Scroll primitive provides scrollable content areas for displaying content that exceeds the available space.
+
+## Basic Usage
+
+```rust
+use ratkit::primitives::scroll::{ScrollArea, ScrollState};
+use ratatui::Frame;
+
+fn render_scrollable(frame: &mut Frame) {
+    let mut state = ScrollState::default();
+    
+    let scroll = ScrollArea::vertical()
+        .content(long_content)
+        .scroll_state(&mut state);
+    
+    frame.render_stateful_widget(scroll, frame.area(), &mut state);
+}
+```
+
+## Scroll Direction
+
+Configure scroll direction:
+
+```rust
+let scroll = ScrollArea::horizontal();  // Horizontal only
+let scroll = ScrollArea::vertical();    // Vertical only
+let scroll = ScrollArea::both();        // Both directions
+```
+
+## Event Handling
+
+Handle scroll events:
+
+```rust
+match key.code {
+    KeyCode::Up => state.scroll_up(),
+    KeyCode::Down => state.scroll_down(),
+    KeyCode::PageUp => state.scroll_page_up(),
+    KeyCode::PageDown => state.scroll_page_down(),
+    _ => {}
+}
+```
