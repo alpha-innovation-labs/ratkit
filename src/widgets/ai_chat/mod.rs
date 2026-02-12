@@ -1,6 +1,7 @@
 //! AI chat interface for ratatui
 
 pub mod ai_chat;
+mod components;
 mod input;
 mod message;
 
