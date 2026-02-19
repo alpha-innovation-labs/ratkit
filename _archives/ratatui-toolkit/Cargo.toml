@@ -1,94 +1,36 @@
 [package]
 name = "ratatui-toolkit"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-authors.workspace = true
-description = "A comprehensive collection of reusable TUI components for ratatui including resizable splits, tree views, markdown rendering, toast notifications, dialogs, and terminal embedding"
+version = "0.2.6"
+edition = "2021"
+rust-version = "1.70"
+authors = ["Alpha Innovation Labs"]
+description = "DEPRECATED: this crate was renamed to `ratkit`. Please migrate to `ratkit`."
 documentation = "https://docs.rs/ratatui-toolkit"
-repository.workspace = true
-homepage.workspace = true
-license.workspace = true
-keywords = ["tui", "ratatui", "terminal", "ui", "widgets"]
-categories = ["command-line-interface", "gui"]
+repository = "https://github.com/Alpha-Innovation-Labs/ratkit"
+homepage = "https://github.com/Alpha-Innovation-Labs/ratkit"
+license = "MIT"
+keywords = ["tui", "ratatui", "terminal", "widgets", "deprecated"]
+categories = ["command-line-interface"]
 readme = "README.md"
 
 [features]
 default = ["markdown", "tree", "dialog", "toast", "split", "menu", "statusline", "hotkey", "terminal", "theme"]
-full = ["default", "terminal", "file-tree", "theme"]
+full = ["default", "file-tree", "theme"]
 
-# Core UI components
-markdown = ["dep:pulldown-cmark", "dep:syntect", "dep:syntect-tui", "dep:serde", "dep:serde_json", "dep:notify", "dep:arboard"]
-tree = []
-dialog = []
-toast = []
-split = []
-menu = []
-statusline = []
-hotkey = []
-
-# Advanced components
-terminal = ["dep:termwiz", "dep:libc", "dep:arboard", "dep:base64", "dep:portable-pty"]
-file-tree = ["tree", "dep:devicons"]
-theme = ["dep:serde", "dep:serde_json", "dep:dirs"]
+markdown = ["ratkit/markdown-preview"]
+tree = ["ratkit/tree-view"]
+dialog = ["ratkit/dialog"]
+toast = ["ratkit/toast"]
+split = ["ratkit/resizable-grid"]
+menu = ["ratkit/menu-bar"]
+statusline = ["ratkit/statusline"]
+hotkey = ["ratkit/hotkey-footer"]
+terminal = ["ratkit/termtui"]
+file-tree = ["tree", "ratkit/file-system-tree"]
+theme = ["ratkit/theme-picker"]
 
 [dependencies]
-# Core TUI framework (workspace)
-ratatui.workspace = true
-crossterm.workspace = true
-
-# Async runtime (workspace)
-tokio.workspace = true
-
-# Utilities (workspace)
-unicode-width.workspace = true
-tracing.workspace = true
-anyhow.workspace = true
-thiserror.workspace = true
-
-# Loading animations
-throbber-widgets-tui = "0.8"
-
-# Markdown rendering (feature-gated)
-pulldown-cmark = { version = "0.12", optional = true }
-syntect = { version = "5", optional = true }
-syntect-tui = { version = "3", optional = true }
-serde = { version = "1", optional = true, features = ["derive"] }
-serde_json = { version = "1", optional = true }
-notify = { version = "6", optional = true }
-
-# Terminal emulation (feature-gated)
-termwiz = { version = "0.23", optional = true }
-libc = { version = "0.2", optional = true }
-arboard = { version = "3", optional = true }
-base64 = { version = "0.22", optional = true }
-
-# PTY management (feature-gated)
-portable-pty = { version = "0.8", optional = true }
-
-# File icons (feature-gated)
-devicons = { version = "0.6", optional = true }
-
-# Directory paths (feature-gated)
-dirs = { version = "5", optional = true }
-
-# Screenshot generation (always available for examples)
-ansee = "0.1"
-image = "0.25"
-
-[dev-dependencies]
-tempfile = "3"
-tokio-test = "0.4"
-
-[[example]]
-name = "showcase"
-path = "examples/showcase/main.rs"
-required-features = ["file-tree"]
-
-[[example]]
-name = "markdown_demo"
-path = "examples/markdown_demo.rs"
-required-features = ["markdown"]
+ratkit = { version = "0.2.5", default-features = false }
 
 [package.metadata.docs.rs]
 all-features = true

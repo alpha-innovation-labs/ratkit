@@ -1,246 +1,32 @@
-//! # ratatui-toolkit
+//! # ratatui-toolkit (deprecated)
 //!
-//! A comprehensive collection of reusable TUI components for [ratatui](https://ratatui.rs/),
-//! the Rust terminal UI library.
+//! This crate has been renamed to [`ratkit`](https://crates.io/crates/ratkit).
+//! Please migrate by replacing:
 //!
-//! ## Overview
+//! - `ratatui-toolkit` -> `ratkit` in `Cargo.toml`
+//! - `ratatui_toolkit` -> `ratkit` in Rust imports
 //!
-//! This crate provides production-ready, reusable widgets for building terminal user interfaces:
-//!
-//! - **Layout Components**: [`ResizableSplit`] for flexible UI layouts
-//! - **UI Components**: [`Button`], [`Dialog`], [`Toast`], [`Pane`] for common UI elements
-//! - **Widgets**: [`TreeView`] for data display
-//! - **Navigation**: [`MenuBar`], [`HotkeyFooter`] for navigation aids
-//! - **Rendering**: [`render_markdown`] for markdown to ratatui text conversion
-//! - **Terminal**: [`TermTui`] for embedded terminal emulation
-//! - **Theming**: [`theme`] module with 33 builtin themes and JSON loader
-//!
-//! ## Feature Flags
-//!
-//! The crate uses feature flags to minimize dependencies:
-//!
-//! | Feature | Default | Description |
-//! |---------|---------|-------------|
-//! | `markdown` | Yes | Markdown rendering support |
-//! | `tree` | Yes | Tree view widget |
-//! | `dialog` | Yes | Modal dialog components |
-//! | `toast` | Yes | Toast notification system |
-//! | `split` | Yes | Resizable split panels |
-//! | `menu` | Yes | Menu bar component |
-//! | `statusline` | Yes | Powerline-style statusline |
-//! | `hotkey` | Yes | Hotkey footer and modal |
-//! | `terminal` | No | Terminal emulator (TermTui) |
-//! | `file-tree` | No | File system tree with devicons |
-//! | `theme` | No | Theme system with 33 builtin themes |
-//! | `full` | No | Enable all features |
-//!
-//! ## Quick Start
-//!
-//! ```rust,no_run
-//! use ratatui::prelude::*;
-//! use ratatui_toolkit::prelude::*;
-//!
-//! // Create a resizable split
-//! let split = ResizableSplit::new(30); // 30% left, 70% right
-//!
-//! // Create a toast notification
-//! let mut manager = ToastManager::new();
-//! manager.success("File saved!");
-//!
-//! // Render markdown
-//! let text = render_markdown("# Hello\n\n**Bold** and *italic* text.", None);
-//! ```
-//!
-//! ## Examples
-//!
-//! See the `examples/` directory for runnable demos of each component:
-//!
-//! ```bash
-//! cargo run --example resizable_split_demo
-//! cargo run --example tree_view_demo --features tree
-//! cargo run --example toast_manager_demo --features toast
-//! ```
+//! This crate is now only a compatibility shim that re-exports `ratkit`.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-// Core components - always available
-pub mod primitives;
+#[deprecated(
+    since = "0.2.6",
+    note = "crate `ratatui-toolkit` was renamed to `ratkit`; switch dependencies and imports to `ratkit`"
+)]
+pub use ratkit::*;
 
-pub mod widgets;
-
-// Re-export scroll utilities
-pub use primitives::scroll::calculate_scroll_offset;
-
-// Services module - shared infrastructure
-pub mod services;
-
-// Re-export commonly used types - always available
-pub use primitives::button::render::with_title::render_title_with_buttons;
-pub use primitives::button::Button;
-pub use primitives::pane::Pane;
-pub use primitives::widget_event::WidgetEvent;
-pub use widgets::ai_chat::{AIChat, AIChatEvent, InputState, Message, MessageRole, MessageStore};
-pub use widgets::code_diff::{CodeDiff, DiffConfig, DiffHunk, DiffLine, DiffLineKind, DiffStyle};
-
-// Feature-gated re-exports
-#[cfg(feature = "dialog")]
-pub use primitives::dialog::widget::DialogWidget;
-#[cfg(feature = "dialog")]
-pub use primitives::dialog::{Dialog, DialogType};
-
-#[cfg(feature = "toast")]
-pub use primitives::toast::render::render_toasts;
-#[cfg(feature = "toast")]
-pub use primitives::toast::{Toast, ToastLevel, ToastManager};
-
-// New unified resizable_grid module
-#[cfg(feature = "split")]
-pub use primitives::resizable_grid::{
-    PaneInfo, ResizableGrid, ResizableGridWidget, ResizableGridWidgetState, SplitAreas,
-};
-
-#[cfg(feature = "tree")]
-pub use primitives::tree_view::{
-    get_visible_paths, matches_filter, NodeState, TreeKeyBindings, TreeNavigator, TreeNode,
-    TreeView, TreeViewRef, TreeViewState,
-};
-
-#[cfg(feature = "menu")]
-pub use primitives::menu_bar::{MenuBar, MenuItem};
-
-#[cfg(feature = "statusline")]
-pub use primitives::statusline::{
-    OperationalMode, StatusLineStacked, StyledStatusLine, SLANT_BL_TR, SLANT_TL_BR,
-};
-
-#[cfg(feature = "hotkey")]
-pub use widgets::hotkey_footer::{HotkeyFooter, HotkeyFooterBuilder, HotkeyItem};
-
-#[cfg(feature = "hotkey")]
-#[cfg(feature = "markdown")]
-pub use widgets::markdown_widget::{
-    render_markdown, render_markdown_with_style, CacheState, CodeBlockTheme, CollapseState,
-    DisplaySettings, DoubleClickState, ExpandableState, GitStats, GitStatsState,
-    MarkdownDoubleClickEvent, MarkdownEvent, MarkdownState, MarkdownStyle, MarkdownWidget,
-    MarkdownWidgetMode, ScrollState, SelectionPos, SelectionState, SourceState, VimState,
-};
-
-#[cfg(feature = "terminal")]
-pub use primitives::termtui::{TermTui, TermTuiKeyBindings};
-
-#[cfg(feature = "file-tree")]
-pub use widgets::file_system_tree::{FileSystemEntry, FileSystemTree, FileSystemTreeConfig};
-
-#[cfg(feature = "theme")]
-pub use widgets::theme_picker::{
-    ThemePicker, ThemePickerEvent, ThemePickerState, ThemePickerStateSnapshot,
-};
-
-#[cfg(feature = "theme")]
-pub use services::theme::{AppTheme, DiffColors, MarkdownColors, SyntaxColors, ThemeVariant};
-
-// File watcher service - always available
-pub use services::file_watcher::{FileWatcher, WatchConfig, WatchMode};
-
-/// Prelude module for convenient imports
-///
-/// # Example
-///
-/// ```rust
-/// use ratatui_toolkit::prelude::*;
-/// ```
+#[deprecated(
+    since = "0.2.6",
+    note = "module `ratatui_toolkit::prelude` moved to `ratkit::prelude`"
+)]
 pub mod prelude {
-    // Core components
-    pub use crate::primitives::button::render::with_title::render_title_with_buttons;
-    pub use crate::primitives::button::Button;
-    pub use crate::primitives::pane::Pane;
-    pub use crate::primitives::scroll::calculate_scroll_offset;
-    pub use crate::primitives::widget_event::WidgetEvent;
-    pub use crate::widgets::ai_chat::{
-        AIChat, AIChatEvent, InputState, Message, MessageRole, MessageStore,
-    };
-    pub use crate::widgets::code_diff::{
-        CodeDiff, DiffConfig, DiffHunk, DiffLine, DiffLineKind, DiffStyle,
-    };
-
-    // Feature-gated components
-    #[cfg(feature = "dialog")]
-    pub use crate::primitives::dialog::widget::DialogWidget;
-    #[cfg(feature = "dialog")]
-    pub use crate::primitives::dialog::{Dialog, DialogType};
-
-    #[cfg(feature = "toast")]
-    pub use crate::primitives::toast::render::render_toasts;
-    #[cfg(feature = "toast")]
-    pub use crate::primitives::toast::{Toast, ToastLevel, ToastManager};
-
-    // New unified resizable_grid module
-    #[cfg(feature = "split")]
-    pub use crate::primitives::resizable_grid::{
-        PaneInfo, ResizableGrid, ResizableGridWidget, ResizableGridWidgetState, SplitAreas,
-    };
-
-    #[cfg(feature = "tree")]
-    pub use crate::primitives::tree_view::{
-        get_visible_paths, matches_filter, NodeState, TreeKeyBindings, TreeNavigator, TreeNode,
-        TreeView, TreeViewRef, TreeViewState,
-    };
-
-    #[cfg(feature = "menu")]
-    pub use crate::primitives::menu_bar::{MenuBar, MenuItem};
-
-    #[cfg(feature = "statusline")]
-    pub use crate::primitives::statusline::{
-        OperationalMode, StatusLineStacked, StyledStatusLine, SLANT_BL_TR, SLANT_TL_BR,
-    };
-
-    #[cfg(feature = "hotkey")]
-    pub use crate::widgets::hotkey_footer::{HotkeyFooter, HotkeyFooterBuilder, HotkeyItem};
-
-    #[cfg(feature = "markdown")]
-    pub use crate::widgets::markdown_widget::{
-        render_markdown, render_markdown_with_style, CacheState, CollapseState, DisplaySettings,
-        DoubleClickState, ExpandableState, GitStatsState, MarkdownState, MarkdownStyle,
-        MarkdownWidget, ScrollState, SelectionState, SourceState, VimState,
-    };
-
-    #[cfg(feature = "terminal")]
-    pub use crate::primitives::termtui::{TermTui, TermTuiKeyBindings};
-
-    #[cfg(feature = "file-tree")]
-    pub use crate::widgets::file_system_tree::{
-        FileSystemEntry, FileSystemTree, FileSystemTreeConfig,
-    };
-
-    #[cfg(feature = "theme")]
-    pub use crate::widgets::theme_picker::{
-        ThemePicker, ThemePickerEvent, ThemePickerState, ThemePickerStateSnapshot,
-    };
-
-    #[cfg(feature = "theme")]
-    pub use crate::services::theme::{
-        AppTheme, DiffColors, MarkdownColors, SyntaxColors, ThemeVariant,
-    };
-
-    // Services
-    pub use crate::services::file_watcher::{FileWatcher, WatchConfig, WatchMode};
+    pub use ratkit::prelude::*;
 }
 
-/// Error types for the crate
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    /// IO error
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
-
-    /// Terminal error
-    #[error("Terminal error: {0}")]
-    Terminal(String),
-
-    /// Parse error
-    #[error("Parse error: {0}")]
-    Parse(String),
-}
-
-/// Result type for the crate
-pub type Result<T> = std::result::Result<T, Error>;
+#[deprecated(
+    since = "0.2.6",
+    note = "crate `ratatui-toolkit` was renamed to `ratkit`; this shim will be removed in a future release"
+)]
+pub const DEPRECATION_NOTICE: &str =
+    "ratatui-toolkit has been renamed to ratkit. Use `ratkit` instead.";
