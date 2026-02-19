@@ -1,12 +1,14 @@
 ---
-description: Syncs Next Actions between tests and context files
+description: Analyze conversation and recommend context/project updates
 ---
 
-# Sync Context Command
+# Command: Context Sync
 
-## Description
+This command is analysis-only.
 
-Analyzes the current conversation to identify what Next Actions (tests) were implemented or changed, then syncs them to the relevant context file(s) in `.nexus/context/`. This ensures the context file's "Next Actions" table stays in sync with actual test implementations.
+Its job is to read the current conversation, analyze existing context files, and report:
+1. what Next Actions should be added or updated
+2. what project-level docs should be updated with new knowledge
 
 ## Usage
 
@@ -14,166 +16,96 @@ Analyzes the current conversation to identify what Next Actions (tests) were imp
 /sync-context
 ```
 
-No parameters needed - the command analyzes the current conversation automatically.
+No parameters required.
 
-## What This Command Does
+## Hard Rules
 
-1. **Analyzes the conversation** to identify:
-   - Which context ID(s) were worked on (e.g., CLI_010, TUI_011)
-   - What tests were written, modified, or discussed
-   - New Next Actions that were implemented
+1. Do not call other slash commands.
+2. Do not use interactive flows (`question` tool).
+3. Do not spawn subagents.
+4. Do not modify files automatically.
+5. Do not remove existing Next Actions; only propose additions/edits.
 
-2. **Finds the relevant context file(s)** in `.nexus/context/`
+## Inputs To Analyze
 
-3. **Compares** the documented Next Actions with what was actually implemented
-
-4. **Updates** the context file's "## Next Actions" table with:
-   - Missing actions that were implemented
-   - Updated wording for actions that changed
+1. Current conversation (source of new requirements/constraints/decisions)
+2. `.nexus/context/**/PRJ_NNN-*.md` context files
+3. `.nexus/context/**/index.md` project operational docs
+4. `.nexus/rules/CONTEXT.md` format requirements
 
 ## Workflow
 
-### Phase 1: Conversation Analysis
+### Phase 1: Extract Conversation Facts
 
-1. **Identify context IDs** mentioned in the conversation:
-   - Look for patterns like "CLI_010", "TUI_011", etc.
-   - Check test file names (e.g., `cli_010_context_chat/` → CLI_010)
-   - Check context file references (e.g., `.nexus/context/nexus-cli/CLI_010-*.md`)
+Identify concrete, user-facing information from the current conversation:
+- New desired outcomes
+- New constraints or requirements
+- New behaviors that should be testable
+- New operational knowledge (commands, env vars, troubleshooting notes)
 
-2. **Identify Next Actions** that were implemented:
-   - Look for test functions that were written or modified
-   - Look for test descriptions or scenario descriptions discussed
-   - Note any new test cases added during the conversation
+Ignore speculative implementation details.
 
-### Phase 2: Context File Discovery
+### Phase 2: Map Facts To Contexts and Projects
 
-1. **Find matching context files**:
-   ```
-   .nexus/context/**/<context_id>*.md
-   ```
-   For example: CLI_010 → `.nexus/context/nexus-cli/CLI_010-context-chat.md`
+1. Match each fact to an existing context in `.nexus/context/` by topic/project/context ID.
+2. If no existing context fits, mark as "new context candidate".
+3. Determine which project folders are affected and should receive doc updates.
 
-2. **Read the context file** and extract:
-   - Current "## Next Actions" table
-   - List of documented actions (Description + Test columns)
+### Phase 3: Propose Next Action Changes
 
-### Phase 3: Action Comparison
+For each matched context:
+1. Read the `## Next Actions` table.
+2. Compare with extracted conversation facts.
+3. Propose only missing or clearly outdated rows.
 
-1. **Compare documented vs implemented**:
-   - Read the test directory (e.g., `crates/nexus-cli/tests/cli_010_*/`)
-   - Extract test function names from `test_*.rs` files
-   - Compare with actions listed in context file's Next Actions table
+Formatting rules for each proposal:
+- `Description`: human-readable, starts with a verb.
+- `Test`: snake_case without `test_` prefix.
+- Keep actions E2E-observable per `.nexus/rules/CONTEXT.md`.
 
-2. **Identify gaps**:
-   - Actions implemented but not documented
-   - Actions with outdated wording
-   - (Do NOT remove actions - they might be pending implementation)
+### Phase 4: Propose Project-Level Knowledge Updates
 
-### Phase 4: Present Changes for Approval
+For each affected project `index.md`, propose additions for relevant sections:
+- Overview
+- Architecture
+- CLI Usage
+- Key Dependencies
+- Environment Variables
+- Debugging & Troubleshooting
 
-For each change identified, use the `question` tool:
+Only propose changes supported by conversation evidence.
 
-```json
-{
-  "questions": [{
-    "question": "Change [N/TOTAL]: Update <context-file>.md - Next Actions\n\nWhat I noticed: During this conversation, a new test `<test_name>` was added that verifies <description>.\n\nProposed addition:\nDescription: <action description>\nTest: `<test_name>`",
-    "header": "Sync Context",
-    "options": [
-      {"label": "Add to context", "description": "Add this action to the context file"},
-      {"label": "Skip", "description": "This action is already covered or not needed"},
-      {"label": "Modify", "description": "Let me provide different wording"}
-    ]
-  }]
-}
-```
+### Phase 5: Return Report (No File Writes)
 
-Wait for user approval for each change using the `question` tool.
-
-### Phase 5: Apply Changes
-
-After all approvals collected:
-
-1. **Show final summary** using the `question` tool:
-   ```json
-   {
-     "questions": [{
-       "question": "Summary of Changes:\n\nI will update the following Next Actions:\n\n1. **<context-file>.md**\n   - Add: <action description> | `<test_name>`\n\nProceed with these updates?",
-       "header": "Confirm Updates",
-       "options": [
-         {"label": "Yes, apply all", "description": "Apply all approved changes"},
-         {"label": "No, cancel", "description": "Cancel all changes"},
-         {"label": "Review", "description": "Show me specific changes again"}
-       ]
-     }]
-   }
-   ```
-
-2. **Apply approved changes**:
-   - Read the context file
-   - Locate "## Next Actions" table
-   - Add new rows in the same table format
-   - Preserve existing rows (don't remove any)
-
-## Next Actions Table Format
-
-Per `.nexus/context/rules/context.md`, actions use table format:
+Return a concise report in this structure:
 
 ```markdown
-## Next Actions
+# Context Sync Report
 
-| Description | Test |
-|-------------|------|
-| User can create new item | `create_item` |
-| System validates input on submit | `validate_input` |
-| Error displays when API fails | `api_error_displayed` |
-```
+## Context Updates
 
-Each row should:
-- Have a Description (human-readable, starts with verb)
-- Have a Test name (snake_case, without `test_` prefix)
-- Description uses present tense ("User can...", "Agent creates...", "System displays...")
-- Test column uses backticks around the test name
+### <context_id> - <context file path>
+- Proposed Next Action: <description> | `<test_name>`
+- Reason: <conversation fact>
 
-## Example Execution
+## Project Docs Updates
 
-```markdown
-# After working on CLI_010 and adding a new test
+### <project> - <index.md path>
+- Section: <section name>
+- Proposed addition: <what to add>
+- Reason: <conversation fact>
 
-/sync-context
+## New Context Candidates
 
-# Output:
-1. Analyzing conversation...
-   - Found context: CLI_010
-   - Found new test: test_context_chat_scans_existing_context_files
-   
-2. Finding context file...
-   - Found: .nexus/context/nexus-cli/CLI_010-context-chat.md
-   
-3. Comparing actions...
-   - Context has 10 documented actions
-   - Test file has 16 tests
-   - New action to add: context file scanning
-   
-4. Presenting change for approval...
-   [Uses question tool to show proposal]
-   
-5. User approves...
+- <project or area>: <one-line desired outcome>
 
-6. Updating context file...
-   Added row to CLI_010-context-chat.md:
-   | Agent scans .nexus/context/ for existing files | `context_chat_scans_existing_context_files` |
+## No-Change Contexts
+
+- <context_id>: already aligned with conversation
 ```
 
 ## Important Notes
 
-- **Non-destructive**: Never removes existing actions
-- **One-by-one approval**: Each change is presented individually using the `question` tool
-- **Final confirmation**: All changes summarized before applying
-- **Preserves format**: Matches existing table format
-- **Test correlation**: `crates/<project>/tests/<context_id>_*/` → `.nexus/context/<project>/<CONTEXT_ID>-*.md`
-- **Standard compliance**: Follows `.nexus/context/rules/context.md` format
-
-## Related Commands
-
-- `/cdd-review-contexts` - Audit context files for quality issues
-- `/cdd-create-context` - Create a new context file
+- This command recommends changes only; it does not apply them.
+- Be explicit about evidence so follow-up edits are straightforward.
+- If nothing needs updating, return an empty-change report and say why.
