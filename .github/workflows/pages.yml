@@ -24,17 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          target: wasm32-unknown-unknown
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Install trunk
-        uses: jetli/trunk-action@v0.4.0
+      - name: Install docs dependencies
+        working-directory: ./docs
+        run: bun install
 
-      - name: Build with trunk
-        working-directory: ./web-demo
-        run: trunk build --release
+      - name: Build docs for GitHub Pages
+        working-directory: ./docs
+        env:
+          GH_PAGES: "1"
+          GH_PAGES_BASE_PATH: "/ratkit"
+        run: bun run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -42,7 +44,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: web-demo/dist
+          path: docs/out
 
       - name: Deploy to GitHub Pages
         id: deployment

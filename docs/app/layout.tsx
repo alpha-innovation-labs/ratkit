@@ -3,7 +3,6 @@ import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import { Navbar } from "@/components/navbar";
 import SearchDialog from "@/components/search";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -19,10 +18,8 @@ export const metadata: Metadata = {
 	description: "A comprehensive collection of reusable TUI components for ratatui.",
 };
 
-export default async function Layout({ children }: LayoutProps<"/">) {
-	const cookieStore = await cookies();
-	const themeCookie = cookieStore.get("theme");
-	const theme = themeCookie?.value || "dark";
+export default function Layout({ children }: LayoutProps<"/">) {
+	const theme = "dark";
 
 	return (
 		<html lang="en" className={jetbrainsMono.className} suppressHydrationWarning>

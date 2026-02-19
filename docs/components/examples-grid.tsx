@@ -20,7 +20,7 @@ export function ExamplesGrid({ examples }: ExamplesGridProps) {
 							<div className="flex items-start justify-between mb-4">
 								<h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
 									{example.title}
-	003c/h3>
+								</h3>
 								<ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
 							</div>
 							<p className="text-muted-foreground text-sm mb-4 flex-grow">

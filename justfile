@@ -40,6 +40,7 @@ help:
     @echo "\033[1;35m  Utilities:\033[0m"
     @echo "  just \033[0;33mclean\033[0m                     \033[0;32mClean build artifacts\033[0m"
     @echo "  just \033[0;33mdocs\033[0m                      \033[0;32mBuild & serve documentation\033[0m"
+    @echo "  just \033[0;33mdocs-gh-pub\033[0m               \033[0;32mBuild & publish docs to GitHub Pages\033[0m"
     @echo ""
     @echo "\033[1;35m  Demos:\033[0m"
     @echo "  just \033[0;33mdemo\033[0m                      \033[0;32mPick and run an example\033[0m"
@@ -79,6 +80,7 @@ import 'justfiles/testing/test.just'
 # ============================================================================
 import 'justfiles/utilities/fmt.just'
 import 'justfiles/utilities/doc.just'
+import 'justfiles/utilities/docs-gh-pub.just'
 import 'justfiles/utilities/clean.just'
 import 'justfiles/utilities/pub.just'
 import 'justfiles/utilities/cast-record.just'

@@ -4,7 +4,6 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { setThemeCookie } from "@/lib/setThemeCookie";
 
 export function ThemeToggle() {
 	const { theme, setTheme } = useTheme();
@@ -26,7 +25,7 @@ export function ThemeToggle() {
 	const handleThemeChange = () => {
 		const value = theme === "dark" ? "light" : "dark";
 		setTheme(value);
-		setThemeCookie(value);
+		document.cookie = `theme=${value}; Path=/; Max-Age=31536000; SameSite=Lax`;
 	};
 
 	return (

@@ -8,7 +8,10 @@ export function middleware(request: NextRequest) {
 		const result = rewriteLLM(request.nextUrl.pathname);
 
 		if (result) {
-			return NextResponse.rewrite(new URL(result, request.nextUrl));
+			const llmUrl = new URL("/llms.mdx", request.nextUrl);
+			llmUrl.searchParams.set("path", result.replace(/^\/llms\.mdx\//, ""));
+
+			return NextResponse.rewrite(llmUrl);
 		}
 	}
 
