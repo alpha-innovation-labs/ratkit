@@ -435,23 +435,14 @@ pub fn render_markdown_to_elements(
                         current_section_id,
                         event_source_line,
                     );
-                    // Add spacing line - use blockquote if we're inside one
-                    if blockquote_depth > 0 {
-                        lines.push(MarkdownElement {
-                            kind: ElementKind::Blockquote {
-                                content: vec![],
-                                depth: blockquote_depth,
-                            },
-                            section_id: current_section_id,
-                            source_line: event_source_line,
-                        });
-                    } else {
-                        lines.push(MarkdownElement {
-                            kind: ElementKind::Empty,
-                            section_id: current_section_id,
-                            source_line: event_source_line,
-                        });
-                    }
+                    // Add spacing line after paragraph.
+                    // Use a plain empty line so a trailing blank line after a blockquote
+                    // does not render an extra quote marker.
+                    lines.push(MarkdownElement {
+                        kind: ElementKind::Empty,
+                        section_id: current_section_id,
+                        source_line: event_source_line,
+                    });
                 }
                 TagEnd::CodeBlock => {
                     // End code block
