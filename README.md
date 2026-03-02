@@ -52,21 +52,21 @@ Add the core runtime to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ratkit = "0.2.11"
+ratkit = "0.2.12"
 ```
 
 For the full bundle of components:
 
 ```toml
 [dependencies]
-ratkit = { version = "0.2.11", features = ["all"] }
+ratkit = { version = "0.2.12", features = ["all"] }
 ```
 
 For selected components:
 
 ```toml
 [dependencies]
-ratkit = { version = "0.2.11", default-features = false, features = ["markdown-preview", "tree-view", "button"] }
+ratkit = { version = "0.2.12", default-features = false, features = ["markdown-preview", "tree-view", "button"] }
 ```
 
 ## Feature Flags
@@ -76,7 +76,7 @@ core runtime is enabled; opt in to specific components or use the `all` feature
 to pull everything.
 
 ```toml
-ratkit = { version = "0.2.11", default-features = false, features = ["tree-view", "toast"] }
+ratkit = { version = "0.2.12", default-features = false, features = ["tree-view", "toast"] }
 ```
 
 ### Feature Groups

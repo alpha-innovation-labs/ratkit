@@ -8,25 +8,25 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ratkit = "0.2.11"
+//! ratkit = "0.2.12"
 //! ```
 //!
 //! For the core runtime only:
 //!
 //! ```toml
-//! ratkit = "0.2.11"
+//! ratkit = "0.2.12"
 //! ```
 //!
 //! For selected components:
 //!
 //! ```toml
-//! ratkit = { version = "0.2.11", default-features = false, features = ["tree-view", "toast"] }
+//! ratkit = { version = "0.2.12", default-features = false, features = ["tree-view", "toast"] }
 //! ```
 //!
 //! For the full bundle:
 //!
 //! ```toml
-//! ratkit = { version = "0.2.11", features = ["all"] }
+//! ratkit = { version = "0.2.12", features = ["all"] }
 //! ```
 //!
 //! # Quick Start
@@ -61,7 +61,7 @@
 //! - `services`: All service components
 //! - Individual feature flags for each component
 
-#![doc(html_root_url = "https://docs.rs/ratkit/0.2.11")]
+#![doc(html_root_url = "https://docs.rs/ratkit/0.2.12")]
 #![warn(missing_docs, clippy::cargo)]
 #![cfg_attr(doc, cfg(feature = "docsrs"))]
 
