@@ -124,7 +124,10 @@ impl<'a> MarkdownWidget<'a> {
             return false;
         }
 
-        let auto_state = TocState::from_content(&self.content);
+        let mut auto_state = TocState::from_content(&self.content);
+        auto_state.scroll_offset = self.toc_scroll_offset;
+        auto_state.hovered = self.toc_hovered;
+        auto_state.hovered_entry = self.toc_hovered_entry;
         let toc_state = self.resolved_toc_state(&auto_state);
         let toc = Toc::new(toc_state)
             .expanded(self.toc_hovered)
@@ -166,17 +169,21 @@ impl<'a> MarkdownWidget<'a> {
 
         let is_potentially_over_toc = event.column >= toc_area.x
             && event.column < toc_area.x + toc_area.width
-            && event.row >= toc_area.y;
+            && event.row >= toc_area.y
+            && event.row < toc_area.y + toc_area.height;
 
         let prev_hovered = self.toc_hovered;
         let prev_entry = self.toc_hovered_entry;
 
         if is_potentially_over_toc {
             let hovered_entry = {
-                let auto_state = TocState::from_content(&self.content);
+                let mut auto_state = TocState::from_content(&self.content);
+                auto_state.scroll_offset = self.toc_scroll_offset;
+                auto_state.hovered = true;
+                auto_state.hovered_entry = self.toc_hovered_entry;
                 let toc_state = self.resolved_toc_state(&auto_state);
                 let toc = Toc::new(toc_state)
-                    .expanded(self.toc_hovered)
+                    .expanded(true)
                     .config(self.toc_config.clone());
                 toc.entry_at_position(event.column, event.row, toc_area)
             };
@@ -214,7 +221,10 @@ impl<'a> MarkdownWidget<'a> {
     }
 
     pub fn update_toc_hovered_entry(&mut self, x: u16, y: u16, toc_area: Rect) {
-        let auto_state = TocState::from_content(&self.content);
+        let mut auto_state = TocState::from_content(&self.content);
+        auto_state.scroll_offset = self.toc_scroll_offset;
+        auto_state.hovered = true;
+        auto_state.hovered_entry = self.toc_hovered_entry;
         let toc_state = self.resolved_toc_state(&auto_state);
         let toc = Toc::new(toc_state)
             .expanded(true)
@@ -225,10 +235,13 @@ impl<'a> MarkdownWidget<'a> {
 
     pub(crate) fn handle_toc_hover_internal(&mut self, event: &MouseEvent, toc_area: Rect) {
         let hovered_entry = {
-            let auto_state = TocState::from_content(&self.content);
+            let mut auto_state = TocState::from_content(&self.content);
+            auto_state.scroll_offset = self.toc_scroll_offset;
+            auto_state.hovered = true;
+            auto_state.hovered_entry = self.toc_hovered_entry;
             let toc_state = self.resolved_toc_state(&auto_state);
             let toc = Toc::new(toc_state)
-                .expanded(self.toc_hovered)
+                .expanded(true)
                 .config(self.toc_config.clone());
             toc.entry_at_position(event.column, event.row, toc_area)
         };
