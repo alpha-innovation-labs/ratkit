@@ -47,12 +47,15 @@ impl MarkdownPreviewDemo {
         let mut scroll = ScrollState::default();
         scroll.update_total_lines(markdown_content.lines().count().max(1));
 
+        let mut display = DisplaySettings::default();
+        display.set_show_document_line_numbers(true);
+
         let widget = MarkdownWidget::new(
             markdown_content,
             scroll,
             source,
             CacheState::default(),
-            DisplaySettings::default(),
+            display,
             CollapseState::default(),
             ExpandableState::default(),
             GitStatsState::default(),
@@ -60,7 +63,7 @@ impl MarkdownPreviewDemo {
             SelectionState::default(),
             DoubleClickState::default(),
         )
-        .with_has_pane(false)
+        .with_has_pane(true)
         .show_toc(true)
         .show_scrollbar(true)
         .show_statusline(true);
@@ -123,6 +126,16 @@ impl CoordinatorApp for MarkdownPreviewDemo {
                             .contains(crossterm::event::KeyModifiers::CONTROL))
                 {
                     return Ok(CoordinatorAction::Quit);
+                }
+
+                if key.key_code == KeyCode::Char(']') {
+                    let toc_visible = self.widget.toggle_toc();
+                    self.show_toast(if toc_visible {
+                        "TOC enabled"
+                    } else {
+                        "TOC disabled"
+                    });
+                    return Ok(CoordinatorAction::Redraw);
                 }
 
                 let key_event = CrosstermKeyEvent {
@@ -218,7 +231,7 @@ impl CoordinatorApp for MarkdownPreviewDemo {
         self.markdown_area = markdown_area;
 
         let dev_text = format!(
-            " DEV | FPS {:>3} | REDRAWS {:>7} | MOUSE {:>4},{:<4} | q quit | wheel scroll | hover TOC | click TOC jump ",
+            " DEV | FPS {:>3} | REDRAWS {:>7} | MOUSE {:>4},{:<4} | q quit | ] TOC | wheel scroll | hover TOC | click TOC jump ",
             self.fps, self.redraws, self.mouse_x, self.mouse_y
         );
         frame.render_widget(
@@ -251,8 +264,9 @@ impl CoordinatorApp for MarkdownPreviewDemo {
 
 fn load_demo_markdown() -> io::Result<String> {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    path.push("examples");
-    path.push("markdown_demo_full.md");
+    path.push("skills");
+    path.push("ratkit");
+    path.push("SKILL.md");
     std::fs::read_to_string(path)
 }
 

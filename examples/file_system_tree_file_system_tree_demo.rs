@@ -7,8 +7,10 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig};
 use ratkit::widgets::file_system_tree::{FileSystemTree, FileSystemTreeState};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig,
+};
 
 struct FileSystemTreeDemo {
     tree: FileSystemTree<'static>,
@@ -38,10 +40,18 @@ impl CoordinatorApp for FileSystemTreeDemo {
             CoordinatorEvent::Keyboard(keyboard) => {
                 match keyboard.key_code {
                     KeyCode::Char('q') => return Ok(CoordinatorAction::Quit),
-                    KeyCode::Down => self.tree.select_next(&mut self.state),
-                    KeyCode::Up => self.tree.select_previous(&mut self.state),
-                    KeyCode::Enter => {
-                        let _ = self.tree.toggle_selected(&mut self.state);
+                    KeyCode::Down
+                    | KeyCode::Up
+                    | KeyCode::Char('j')
+                    | KeyCode::Char('k')
+                    | KeyCode::Enter
+                    | KeyCode::Left
+                    | KeyCode::Right
+                    | KeyCode::Char('h')
+                    | KeyCode::Char('l') => {
+                        let _ = self
+                            .tree
+                            .handle_navigation_key(keyboard.key_code, &mut self.state);
                     }
                     KeyCode::Char('/') => {
                         if !self.tree.is_filter_mode(&self.state) {
@@ -85,7 +95,7 @@ impl CoordinatorApp for FileSystemTreeDemo {
         frame.render_stateful_widget(tree, layout[0], &mut self.state);
 
         let footer = Paragraph::new(vec![
-            Line::from("Up/Down select, Enter toggle, / filter"),
+            Line::from("j/k or Up/Down move, Enter toggle, h/l collapse/expand, / filter"),
             Line::from(format!("Selected: {}", self.last_selection)),
         ])
         .block(Block::default().borders(Borders::ALL).title(" Status "));

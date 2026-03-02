@@ -13,8 +13,9 @@ impl FileSystemEntry {
         let name = path
             .file_name()
             .and_then(|n| n.to_str())
-            .unwrap_or("")
-            .to_string();
+            .filter(|n| !n.is_empty())
+            .map(ToString::to_string)
+            .unwrap_or_else(|| path.display().to_string());
 
         let is_dir = path.is_dir();
         let is_hidden = name.starts_with('.');

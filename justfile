@@ -49,6 +49,7 @@ help:
     @echo "  just \033[0;33mdemo-split\033[0m                \033[0;32mSplit layout demo\033[0m"
     @echo "  just \033[0;33mdemo-codediff\033[0m             \033[0;32mCode diff demo\033[0m"
     @echo "  just \033[0;33mdemo-aichat\033[0m               \033[0;32mAI chat demo\033[0m"
+    @echo "  just \033[0;33mdemo-filesystem\033[0m           \033[0;32mFile system tree demo\033[0m"
     @echo ""
 
 # ============================================================================
@@ -92,5 +93,6 @@ import 'justfiles/utilities/demo-md.just'
 import 'justfiles/utilities/demo-term.just'
 import 'justfiles/utilities/demo-codediff.just'
 import 'justfiles/utilities/demo-aichat.just'
+import 'justfiles/utilities/demo-filesystem.just'
 import 'justfiles/utilities/demo-split.just'
 import 'justfiles/utilities/cast-clean.just'

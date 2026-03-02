@@ -477,6 +477,18 @@ impl<'a> MarkdownWidget<'a> {
         self.show_toc = show;
         self
     }
+
+    /// Toggle TOC visibility at runtime.
+    ///
+    /// Returns the new visibility state.
+    pub fn toggle_toc(&mut self) -> bool {
+        self.show_toc = !self.show_toc;
+        if !self.show_toc {
+            self.toc_hovered = false;
+            self.toc_hovered_entry = None;
+        }
+        self.show_toc
+    }
 }
 
 /// Set the TOC configuration.
@@ -2731,6 +2743,7 @@ use crate::widgets::markdown_preview::widgets::markdown_widget::foundation::elem
 };
 use crate::widgets::markdown_preview::widgets::markdown_widget::foundation::helpers::hash_content;
 use crate::widgets::markdown_preview::widgets::markdown_widget::state::{ParsedCache, RenderCache};
+use unicode_width::UnicodeWidthChar;
 
 /// Current line highlight color (normal - dark blue-gray)
 const CURRENT_LINE_BG: Color = Color::Rgb(38, 52, 63);
@@ -3143,10 +3156,26 @@ impl<'a> Widget for &mut MarkdownWidget<'a> {
                 let y = content_area.y + i as u16;
                 let mut x = content_area.x;
                 for span in line.spans.iter() {
-                    let span_width = span.content.chars().count() as u16;
-                    if x.saturating_sub(content_area.x) < content_area.width {
-                        buf.set_string(x, y, &span.content, span.style);
-                        x = x.saturating_add(span_width);
+                    let used = x.saturating_sub(content_area.x);
+                    let remaining = content_area.width.saturating_sub(used) as usize;
+                    if remaining == 0 {
+                        break;
+                    }
+
+                    let mut clipped = String::new();
+                    let mut clipped_width = 0usize;
+                    for ch in span.content.chars() {
+                        let ch_width = UnicodeWidthChar::width(ch).unwrap_or(0);
+                        if clipped_width + ch_width > remaining {
+                            break;
+                        }
+                        clipped.push(ch);
+                        clipped_width += ch_width;
+                    }
+
+                    if !clipped.is_empty() {
+                        buf.set_string(x, y, clipped, span.style);
+                        x = x.saturating_add(clipped_width as u16);
                     }
                 }
             }

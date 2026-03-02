@@ -161,7 +161,17 @@ pub struct FileSystemTree<'a> {
 impl<'a> FileSystemTree<'a> {
     pub fn new(root_path: std::path::PathBuf) -> std::io::Result<Self> {
         let config = FileSystemTreeConfig::default();
-        let nodes = Self::load_directory(&root_path, &config)?;
+        let root_entry = FileSystemEntry::new(root_path.clone())?;
+        let root_children = if root_entry.is_dir {
+            Self::load_directory(&root_path, &config)?
+        } else {
+            Vec::new()
+        };
+        let nodes = vec![FileSystemTreeNode {
+            data: root_entry,
+            children: root_children,
+            expandable: root_path.is_dir(),
+        }];
 
         Ok(Self {
             root_path,
@@ -175,7 +185,17 @@ impl<'a> FileSystemTree<'a> {
         root_path: std::path::PathBuf,
         config: FileSystemTreeConfig,
     ) -> std::io::Result<Self> {
-        let nodes = Self::load_directory(&root_path, &config)?;
+        let root_entry = FileSystemEntry::new(root_path.clone())?;
+        let root_children = if root_entry.is_dir {
+            Self::load_directory(&root_path, &config)?
+        } else {
+            Vec::new()
+        };
+        let nodes = vec![FileSystemTreeNode {
+            data: root_entry,
+            children: root_children,
+            expandable: root_path.is_dir(),
+        }];
 
         Ok(Self {
             root_path,
@@ -354,6 +374,89 @@ impl<'a> FileSystemTree<'a> {
         Ok(())
     }
 
+    pub fn expand_selected(&mut self, state: &mut FileSystemTreeState) -> std::io::Result<bool> {
+        let Some(path) = state.selected_path.clone() else {
+            return Ok(false);
+        };
+
+        let Some(entry) = self.get_entry_at_path(&path) else {
+            return Ok(false);
+        };
+
+        if !entry.is_dir {
+            return Ok(false);
+        }
+
+        if !state.is_expanded(&path) {
+            self.expand_directory(&path)?;
+            state.expand(path);
+            return Ok(true);
+        }
+
+        Ok(false)
+    }
+
+    pub fn collapse_selected(&mut self, state: &mut FileSystemTreeState) -> bool {
+        let Some(path) = state.selected_path.clone() else {
+            return false;
+        };
+
+        if state.is_expanded(&path) {
+            state.collapse(path);
+            return true;
+        }
+
+        if path.len() > 1 {
+            let mut parent = path;
+            parent.pop();
+            state.select(parent);
+            return true;
+        }
+
+        false
+    }
+
+    pub fn handle_navigation_key(
+        &mut self,
+        key: crossterm::event::KeyCode,
+        state: &mut FileSystemTreeState,
+    ) -> std::io::Result<bool> {
+        match key {
+            crossterm::event::KeyCode::Down | crossterm::event::KeyCode::Char('j') => {
+                self.select_next(state);
+                Ok(true)
+            }
+            crossterm::event::KeyCode::Up | crossterm::event::KeyCode::Char('k') => {
+                self.select_previous(state);
+                Ok(true)
+            }
+            crossterm::event::KeyCode::Enter => {
+                self.toggle_selected(state)?;
+                Ok(true)
+            }
+            crossterm::event::KeyCode::Right | crossterm::event::KeyCode::Char('l') => {
+                if self.expand_selected(state)? {
+                    return Ok(true);
+                }
+
+                if let Some(path) = state.selected_path.clone() {
+                    let mut first_child = path.clone();
+                    first_child.push(0);
+                    if self.get_entry_at_path(&first_child).is_some() {
+                        state.select(first_child);
+                        return Ok(true);
+                    }
+                }
+
+                Ok(false)
+            }
+            crossterm::event::KeyCode::Left | crossterm::event::KeyCode::Char('h') => {
+                Ok(self.collapse_selected(state))
+            }
+            _ => Ok(false),
+        }
+    }
+
     pub fn enter_filter_mode(&self, state: &mut FileSystemTreeState) {
         state.enter_filter_mode();
     }
@@ -406,6 +509,10 @@ impl<'a> ratatui::widgets::StatefulWidget for FileSystemTree<'a> {
     type State = FileSystemTreeState;
 
     fn render(mut self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        if state.expanded.is_empty() && !self.nodes.is_empty() {
+            state.expand(vec![0]);
+        }
+
         let config = self.config;
         let block = self.block.take();
         let filter_mode = state.filter_mode;
@@ -473,7 +580,11 @@ impl<'a> ratatui::widgets::StatefulWidget for FileSystemTree<'a> {
                     config.file_style
                 };
 
+                let depth = path.len().saturating_sub(1);
+                let indent = "  ".repeat(depth);
+
                 let line = Line::from(vec![
+                    Span::raw(indent),
                     Span::styled(format!("{} ", icon_glyph), Style::default().fg(icon_color)),
                     Span::styled(entry.name.clone(), style),
                 ]);

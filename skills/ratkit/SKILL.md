@@ -19,7 +19,7 @@ This file provides a complete reference for working with the ratkit codebase. Th
 3. **Cross-feature dependencies**: Some features auto-enable others (e.g., `tree-view` enables `widget-event`, `repo-watcher` enables `file-watcher` and `git-watcher`)
 4. **Use `just` for all operations**: Build (`just build`), test (`just test`), check (`just check`), demos (`just demo`)
 5. **Run examples with `--features` flag**: Examples require their specific features (e.g., `--features markdown-preview`)
-6. **Import from crate root**: All public APIs are re-exported from `ratkit::` (e.g., `use ratkit::Button`)
+6. **Use module-path imports first**: Prefer explicit module paths (e.g., `use ratkit::primitives::button::Button`, `use ratkit::widgets::markdown_preview::MarkdownWidget`) because crate-root re-exports are not guaranteed for every type
 7. **StatefulWidget pattern**: Complex widgets require separate state structs persisted in app state
 8. **Event loop polling**: Services require regular `check_for_changes()` calls in the event loop
 9. **Mouse capture required**: Enable crossterm mouse capture for interactive widgets
@@ -43,6 +43,12 @@ This file provides a complete reference for working with the ratkit codebase. Th
 - **Where to edit**: N/A
 - **Related files**: `examples/`
 - **Validation**: `cargo run --example button_button_demo --features button`
+
+### Extract smooth-redraw patterns from markdown preview demo
+- **Where to edit**: target app event loop (`on_event`) and draw path (`on_draw`)
+- **Related files**: `examples/markdown_preview_markdown_preview_demo.rs`
+- **Goal**: Port the demo's event-pressure controls and redraw strategy into other TUIs
+- **Validation**: Under rapid mouse movement and wheel input, app remains responsive without event backlog
 
 ### Run with just
 - **Where to edit**: N/A
@@ -389,6 +395,57 @@ All watcher services use the `notify` crate for filesystem events.
 
 1. **Feature flags required**: Examples need their specific features: `--features markdown-preview`
 2. **Just commands**: Use `just demo` for interactive picker or `just demo-*` for specific demos
+3. **Port behavior, not just API calls**: Reuse input coalescing and selective redraw patterns from demos, not only widget construction code
+
+## Smooth Redraw Patterns (Extracted from Markdown Preview Demo)
+
+Use this section to transfer the demo's responsiveness patterns into other ratkit apps.
+
+### Core anti-throttling techniques
+
+1. **Coalesce high-rate mouse move events**
+   - Pattern: On `MouseEventKind::Moved`, skip handling if last processed move was too recent.
+   - Demo value: ~24ms guard (`last_move_processed.elapsed() < Duration::from_millis(24)`).
+   - Effect: Prevents motion events from overwhelming the queue during fast pointer movement.
+
+2. **Gate redraws to meaningful state changes**
+   - Pattern: Return `CoordinatorAction::Continue` by default for move events; return `Redraw` only when UI state actually changes.
+   - Demo behavior: Move events redraw only on `MarkdownEvent::TocHoverChanged { .. }`.
+   - Effect: Avoids redraw storms and keeps frame pacing stable.
+
+3. **Use differential handling for move vs non-move mouse events**
+   - Pattern: Treat clicks/wheel/drag as higher-value events and redraw immediately; aggressively filter move-only noise.
+   - Effect: Maintains interaction fidelity while reducing unnecessary render pressure.
+
+4. **Bound periodic work with moderate tick rate**
+   - Pattern: Configure non-aggressive ticks and use tick handler for lightweight maintenance only.
+   - Demo value: `RunnerConfig { tick_rate: Duration::from_millis(250), .. }`.
+   - Effect: Reduces idle churn and avoids periodic tasks competing with interactive redraws.
+
+5. **Persist heavy widget state outside draw loop**
+   - Pattern: Store all stateful structs in app state and mutate incrementally in event handlers.
+   - Demo structures: `ScrollState`, `SourceState`, `CacheState`, `CollapseState`, `ExpandableState`, `GitStatsState`, `VimState`, `SelectionState`, `DoubleClickState`.
+   - Effect: Prevents reallocation/reparse overhead on each frame and stabilizes render latency.
+
+6. **Keep `on_draw` render-only**
+   - Pattern: Avoid heavy parsing, file reads, or expensive recomputation in `on_draw`; do those on state transitions.
+   - Effect: More predictable frame time and smoother UI under bursty input.
+
+### Event-loop blueprint to reuse in other apps
+
+- **Keyboard**: early-return `Continue` for non-keydown; map only actionable keys to state changes, then redraw.
+- **Mouse moved**: coalesce by time window; update hover state; redraw only on meaningful diff.
+- **Mouse non-moved**: apply action (click/wheel/selection), then redraw.
+- **Tick**: run lightweight expirations/cleanup; redraw only when cleanup changed visible state.
+- **Resize**: redraw.
+
+### Porting checklist (copy into new feature work)
+
+- Add `last_move_processed: Instant` to app state and time-gate move handling.
+- Ensure event handlers return `Continue` unless visible state changed.
+- Separate ephemeral notifications/cleanup into tick-driven maintenance.
+- Keep widget state persistent and mutate in place.
+- Verify smoothness under rapid mouse movement and continuous wheel scrolling.
 
 ## Optional
 
