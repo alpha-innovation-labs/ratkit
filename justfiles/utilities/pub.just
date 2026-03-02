@@ -25,7 +25,16 @@ pub:
     echo "Updated Cargo.lock"
 
     echo "Committing version bump..."
-    git add Cargo.toml Cargo.lock README.md skills/ratkit/SKILL.md src/lib.rs
+    git add Cargo.toml README.md skills/ratkit/SKILL.md src/lib.rs
+    if git ls-files --error-unmatch Cargo.lock >/dev/null 2>&1; then
+        git add Cargo.lock
+    fi
+
+    if git diff --cached --quiet --exit-code; then
+        echo "No staged version changes found after bump-version"
+        exit 1
+    fi
+
     git commit -m "chore: bump version to $NEW_VERSION"
     echo "Committed version bump"
 
