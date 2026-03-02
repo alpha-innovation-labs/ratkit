@@ -1,0 +1,1 @@
+../../.nexus/ai_harness/commands/nexus-explore-critique.md

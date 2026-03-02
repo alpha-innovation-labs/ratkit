@@ -1,0 +1,1 @@
+../../.nexus/ai_harness/commands/nexus-context-validate-unstaged.md

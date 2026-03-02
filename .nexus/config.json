@@ -1,0 +1,29 @@
+{
+  "harness": "opencode",
+  "marketplace": {},
+  "skill_generation": {
+    "projects": {
+      "opennexus": {
+        "exclude_folders": [
+          "docs",
+          ".ruff_cache"
+        ],
+        "include_folders": [
+          "src",
+          "apps",
+          "tests",
+          "justfiles",
+          "wrappers",
+          "packaging",
+          ".nexus",
+          ".opencode",
+          ".github",
+          ".cargo",
+          ".cargo-husky"
+        ],
+        "updated_at": "2026-02-24T14:29:50Z"
+      }
+    }
+  },
+  "version": "0.1.7"
+}

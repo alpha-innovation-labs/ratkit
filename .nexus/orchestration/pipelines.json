@@ -1,0 +1,29 @@
+{
+  "pipelines": {
+    "default": {
+      "steps": [
+        "parse_context",
+        "dependency_gate",
+        "discover_and_select_rule",
+        "resolve_test_runner",
+        "generate_scaffold",
+        "red_test_author",
+        "verify_test_discovery",
+        "verify_red_tests",
+        "coder_iteration"
+      ],
+      "red_failure_patterns": [
+        "syntaxerror",
+        "error collecting",
+        "failed to import",
+        "importerror",
+        "nameerror",
+        "module not found",
+        "could not compile",
+        "compilation failed",
+        "error: could not compile",
+        "parse error"
+      ]
+    }
+  }
+}

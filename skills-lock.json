@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "opencode-rs-sdk": {
+      "source": "Alpha-Innovation-Labs/opencode-rs-sdk",
+      "sourceType": "github",
+      "computedHash": "2fc1ab6ff8d29f11d86a50cf422726dfbd85d6880e366e2e56aa590ca7e055b6"
+    }
+  }
+}
