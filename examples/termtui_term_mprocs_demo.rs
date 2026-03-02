@@ -9,11 +9,11 @@ use ratatui::layout::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders};
 use ratatui::Frame;
+use ratkit::primitives::termtui::{render_screen, CursorStyle, Parser, VtEvent};
 use ratkit::{
     run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, KeyboardEvent,
     RedrawSignal, ResizeEvent, RunnerConfig,
 };
-use ratkit::primitives::termtui::{render_screen, CursorStyle, Parser, VtEvent};
 
 struct TermMprocsTerminal {
     parser: Arc<Mutex<Parser>>,

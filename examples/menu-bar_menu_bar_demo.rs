@@ -5,8 +5,11 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, MouseEvent, RunnerConfig};
 use ratkit::primitives::menu_bar::{MenuBar, MenuItem};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, MouseEvent,
+    RunnerConfig,
+};
 
 struct MenuBarDemo {
     menu: MenuBar,

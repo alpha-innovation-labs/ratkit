@@ -4,8 +4,10 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig};
 use ratkit::widgets::{HotkeyFooter, HotkeyItem};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig,
+};
 
 struct HotkeyFooterDemo;
 

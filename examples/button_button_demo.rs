@@ -7,10 +7,10 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
+use ratkit::primitives::button::Button;
 use ratkit::{
     run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig,
 };
-use ratkit::primitives::button::Button;
 
 struct ButtonDemo {
     button: Button,

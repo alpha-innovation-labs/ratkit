@@ -7,10 +7,11 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-use ratkit::{
-    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, KeyboardEvent, RunnerConfig,
-};
 use ratkit::primitives::scroll::calculate_scroll_offset;
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, KeyboardEvent,
+    RunnerConfig,
+};
 
 struct ScrollDemo {
     selected: usize,

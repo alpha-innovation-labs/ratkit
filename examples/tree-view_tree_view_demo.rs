@@ -6,8 +6,10 @@ use ratatui::{
     widgets::{Block, Borders},
     Frame,
 };
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig};
 use ratkit::primitives::tree_view::{TreeNavigator, TreeNode, TreeView, TreeViewState};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig,
+};
 
 struct TreeViewDemo {
     nodes: Vec<TreeNode<&'static str>>,

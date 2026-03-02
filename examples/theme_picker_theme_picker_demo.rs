@@ -3,8 +3,10 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig};
 use ratkit::widgets::theme_picker::{ThemePicker, ThemePickerEvent};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig,
+};
 
 struct ThemePickerDemo {
     picker: ThemePicker,

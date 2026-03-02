@@ -1,8 +1,12 @@
 use ratatui::layout::Rect;
 use ratatui::widgets::{Block, Borders};
 use ratatui::Frame;
-use ratkit::{run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig};
-use ratkit::primitives::resizable_grid::{ResizableGrid, ResizableGridWidget, ResizableGridWidgetState};
+use ratkit::primitives::resizable_grid::{
+    ResizableGrid, ResizableGridWidget, ResizableGridWidgetState,
+};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, RunnerConfig,
+};
 
 struct ResizableGridDemo {
     layout: ResizableGrid,

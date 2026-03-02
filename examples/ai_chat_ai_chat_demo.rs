@@ -28,7 +28,10 @@ fn format_output(session: &Session, messages: &[Message]) {
     println!("\n============================================================");
     println!("Session: {}", session.title);
     println!("ID: {}", session.id);
-    println!("Directory: {}", session.directory.as_deref().unwrap_or("Unknown"));
+    println!(
+        "Directory: {}",
+        session.directory.as_deref().unwrap_or("Unknown")
+    );
     println!("Version: {}", session.version);
     if let Some(time) = &session.time {
         println!("Created: {}", time.created);
@@ -53,7 +56,9 @@ fn format_output(session: &Session, messages: &[Message]) {
                 Part::Text { text, .. } => {
                     println!("{}", text);
                 }
-                Part::Tool { tool, state, input, .. } => {
+                Part::Tool {
+                    tool, state, input, ..
+                } => {
                     println!("[Tool: {}]", tool);
                     if let Some(input_val) = input.get("input").and_then(|v| v.as_str()) {
                         println!("{}", input_val);
@@ -70,7 +75,12 @@ fn format_output(session: &Session, messages: &[Message]) {
                         }
                     }
                 }
-                Part::StepFinish { cost, tokens, reason, .. } => {
+                Part::StepFinish {
+                    cost,
+                    tokens,
+                    reason,
+                    ..
+                } => {
                     print!("[Step: {} | cost: ${:.4}]", reason, cost);
                     if let Some(tok) = tokens {
                         print!(" [Tokens: in={} out={}", tok.input, tok.output);
@@ -116,24 +126,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "  - {} (ID: {}, Updated: {})",
             session.title,
             session.id,
-            session.time.as_ref().map(|t| t.updated.to_string()).unwrap_or_default()
+            session
+                .time
+                .as_ref()
+                .map(|t| t.updated.to_string())
+                .unwrap_or_default()
         );
     }
 
     let latest_session = sessions
         .iter()
-        .max_by_key(|s| {
-            s.time
-                .as_ref()
-                .map(|t| t.updated)
-                .unwrap_or(0)
-        })
+        .max_by_key(|s| s.time.as_ref().map(|t| t.updated).unwrap_or(0))
         .expect("At least one session exists");
 
     println!(
         "\nFetching conversation for: {} ({})",
-        latest_session.title,
-        latest_session.id
+        latest_session.title, latest_session.id
     );
 
     let session = client.sessions().get(&latest_session.id).await?;

@@ -2,10 +2,11 @@ use std::io;
 
 use crossterm::event::KeyCode;
 use ratatui::Frame;
-use ratkit::{
-    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, KeyboardEvent, RunnerConfig,
-};
 use ratkit::primitives::dialog::{Dialog, DialogWidget};
+use ratkit::{
+    run_with_diagnostics, CoordinatorAction, CoordinatorApp, CoordinatorEvent, KeyboardEvent,
+    RunnerConfig,
+};
 
 struct DialogDemo {
     dialog: Dialog<'static>,

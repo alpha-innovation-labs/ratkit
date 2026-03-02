@@ -265,6 +265,10 @@ impl CoordinatorApp for MarkdownPreviewDemo {
 }
 
 fn load_demo_markdown() -> io::Result<String> {
+    if let Ok(path) = env::var("RATKIT_MD_DEMO_FILE") {
+        return std::fs::read_to_string(path);
+    }
+
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("skills");
     path.push("ratkit");
