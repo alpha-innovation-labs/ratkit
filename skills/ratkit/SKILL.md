@@ -3,7 +3,7 @@ name: ratkit
 description: Comprehensive guide for the ratkit Rust TUI component library built on ratatui 0.29, including feature flags, APIs, and implementation patterns. Use when building, debugging, or extending ratkit applications and examples.
 compatibility: Requires Rust 1.70+, Cargo, just, and a terminal environment for interactive TUI demos.
 metadata:
-  version: "0.2.5"
+  version: "0.2.6"
 ---
 
 # ratkit
@@ -161,6 +161,13 @@ Each primitive has an individual feature flag:
 - Event emission via `WidgetEvent`
 - Mouse/keyboard interaction support
 
+### MenuBar Layout Contract (updated)
+
+- `MenuBar::render_with_offset(frame, area, left_offset)` now uses the full available container width for the border: `area.width - left_offset`
+- The menu bar border should stretch to the right edge of the provided container, while menu items remain left-aligned within the bar
+- If available width is zero after offset, rendering exits early and clears `self.area`
+- This behavior was validated with `examples/menu-bar_menu_bar_demo.rs` at fixed 120-column terminal width
+
 ## Complex Widgets
 
 Higher-level composite widgets in `src/widgets/`.
@@ -297,6 +304,19 @@ All watcher services use the `notify` crate for filesystem events.
 - **Key APIs**: `ToastManager::new()`, `.add()`, `.success()`, `.error()`, `.cleanup()`
 - **Pitfalls**: Must call `cleanup()` to remove expired; doesn't auto-expire
 - **Source**: `src/primitives/toast/`
+
+### MenuBar
+- **Use when**: Top-level horizontal navigation with mouse and keyboard selection
+- **Enable/Install**: `features = ["menu-bar"]` (auto-enables `widget-event`)
+- **Import/Invoke**: `use ratkit::primitives::menu_bar::{MenuBar, MenuItem};`
+- **Minimal flow**:
+  1. Create `MenuBar::new(vec![MenuItem::new("File", 0), ...])`
+  2. Optionally set initial selection with `.with_selected(index)`
+  3. On mouse move: call `update_hover(x, y)`; on click: call `handle_click(x, y)` or `handle_mouse(x, y)`
+  4. Render with `render()` or `render_with_offset()`
+- **Key APIs**: `new()`, `with_selected()`, `update_hover()`, `handle_click()`, `handle_mouse()`, `selected()`, `render_with_offset()`
+- **Pitfalls**: Border fills full container width; do not assume border auto-sizes to label content
+- **Source**: `src/primitives/menu_bar/menu_bar.rs`, `examples/menu-bar_menu_bar_demo.rs`
 
 ### TreeView
 - **Use when**: Hierarchical data with expand/collapse/selection

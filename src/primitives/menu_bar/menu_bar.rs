@@ -239,20 +239,16 @@ impl MenuBar {
             return;
         }
 
-        let total_label_width: usize = self
-            .items
-            .iter()
-            .map(|item| display_width(&item.display_label()))
-            .sum();
-        let separators = (self.items.len() - 1) * 3;
-        let needed_width = (total_label_width + separators + 4) as u16;
-
         let available_width = area.width.saturating_sub(left_offset);
+        if available_width == 0 {
+            self.area = None;
+            return;
+        }
 
         let button_group_area = Rect {
             x: area.x + left_offset,
             y: area.y,
-            width: needed_width.min(available_width),
+            width: available_width,
             height: area.height,
         };
 
