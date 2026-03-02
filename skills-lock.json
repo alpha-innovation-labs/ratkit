@@ -1,10 +1,20 @@
 {
   "version": 1,
   "skills": {
+    "nexus": {
+      "source": "Alpha-Innovation-Labs/opennexus",
+      "sourceType": "github",
+      "computedHash": "b211b1cd776b3c798482f53df5683503fd8f92c962d0eb0d3177b19c72069b2e"
+    },
     "opencode-rs-sdk": {
       "source": "Alpha-Innovation-Labs/opencode-rs-sdk",
       "sourceType": "github",
       "computedHash": "2fc1ab6ff8d29f11d86a50cf422726dfbd85d6880e366e2e56aa590ca7e055b6"
+    },
+    "software-enginering": {
+      "source": "Alpha-Innovation-Labs/opennexus",
+      "sourceType": "github",
+      "computedHash": "d6a40ac1023a0d6953cf93bfae3ca3819791a6d7d749481125e975007b01ddd3"
     }
   }
 }

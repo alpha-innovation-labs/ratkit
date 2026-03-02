@@ -1,3 +1,4 @@
+use ratatui::buffer::Buffer;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::text::Line;
 use ratatui::widgets::{Block, Borders, Paragraph, Widget};
@@ -67,6 +68,25 @@ impl<'a> Pane<'a> {
         let inner = block.inner(padded_area);
 
         frame.render_widget(block, padded_area);
+
+        if self.footer_height == 0 {
+            return (inner, None);
+        }
+
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Min(0), Constraint::Length(self.footer_height)])
+            .split(inner);
+
+        (chunks[0], Some(chunks[1]))
+    }
+
+    pub fn render_block_in_buffer(&self, area: Rect, buf: &mut Buffer) -> (Rect, Option<Rect>) {
+        let padded_area = self.get_padded_area(area);
+        let block = self.build_block();
+        let inner = block.inner(padded_area);
+
+        block.render(padded_area, buf);
 
         if self.footer_height == 0 {
             return (inner, None);

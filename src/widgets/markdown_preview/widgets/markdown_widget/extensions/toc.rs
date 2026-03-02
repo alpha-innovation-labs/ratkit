@@ -39,6 +39,7 @@ use ratatui::widgets::{
 };
 use unicode_width::UnicodeWidthStr;
 
+use crate::primitives::pane::Pane;
 use crate::widgets::markdown_preview::widgets::markdown_widget::state::TocState;
 
 /// Table of Contents widget for markdown navigation.
@@ -73,6 +74,10 @@ pub struct Toc<'a> {
 /// Hovered entry configuration for Toc widget.
 
 impl<'a> Toc<'a> {
+    fn panel_background_style(&self) -> Style {
+        self.config.background_style
+    }
+
     /// Set the hovered item index.
     ///
     /// # Arguments
@@ -620,14 +625,6 @@ pub fn get_expanded_content_area(area: Rect, config: &TocConfig, entry_count: us
 
 /// Border rendering for the TOC widget in expanded mode.
 
-/// Border characters for rounded corners.
-const CORNER_TOP_LEFT: char = '\u{256D}';
-const CORNER_TOP_RIGHT: char = '\u{256E}';
-const CORNER_BOTTOM_LEFT: char = '\u{2570}';
-const CORNER_BOTTOM_RIGHT: char = '\u{256F}';
-const HORIZONTAL: char = '\u{2500}';
-const VERTICAL: char = '\u{2502}';
-
 impl<'a> Toc<'a> {
     /// Render the border around the TOC.
     ///
@@ -642,91 +639,16 @@ impl<'a> Toc<'a> {
     ///
     /// The inner area available for content after the border.
     pub(crate) fn render_border(&self, area: Rect, buf: &mut Buffer) -> Rect {
-        if area.width < 4 || area.height < 3 {
-            return area;
-        }
+        let bg = self.config.background_style.bg.unwrap_or(Color::Black);
+        let border_style = self.config.border_style.bg(bg);
+        let title_style = self.config.title_style.bg(bg);
 
-        let border_style = self.config.border_style;
-        let title_style = self.config.title_style;
-        let bg_style = self.config.background_style;
+        let pane = Pane::new("TOC")
+            .border_style(border_style)
+            .title_style(title_style);
 
-        // Top-left corner
-        buf.cell_mut((area.x, area.y))
-            .map(|cell| cell.set_char(CORNER_TOP_LEFT).set_style(border_style));
-
-        // In expanded mode, show title; in compact mode, just draw the border line
-        if self.expanded {
-            // Title and top border
-            let title = &self.config.title;
-            let title_start = area.x + 2;
-            let title_end = title_start + title.len() as u16;
-
-            // Space before title
-            buf.cell_mut((area.x + 1, area.y))
-                .map(|cell| cell.set_char(' ').set_style(bg_style));
-
-            // Render title
-            for (i, ch) in title.chars().enumerate() {
-                let x = title_start + i as u16;
-                if x < area.x + area.width - 1 {
-                    buf.cell_mut((x, area.y))
-                        .map(|cell| cell.set_char(ch).set_style(title_style));
-                }
-            }
-
-            // Space after title
-            if title_end < area.x + area.width - 1 {
-                buf.cell_mut((title_end, area.y))
-                    .map(|cell| cell.set_char(' ').set_style(bg_style));
-            }
-
-            // Horizontal line after title
-            let line_start = title_end + 1;
-            for x in line_start..(area.x + area.width - 1) {
-                buf.cell_mut((x, area.y))
-                    .map(|cell| cell.set_char(HORIZONTAL).set_style(border_style));
-            }
-        } else {
-            // Compact mode: just horizontal line, no title
-            for x in (area.x + 1)..(area.x + area.width - 1) {
-                buf.cell_mut((x, area.y))
-                    .map(|cell| cell.set_char(HORIZONTAL).set_style(border_style));
-            }
-        }
-
-        // Top-right corner
-        buf.cell_mut((area.x + area.width - 1, area.y))
-            .map(|cell| cell.set_char(CORNER_TOP_RIGHT).set_style(border_style));
-
-        // Left and right borders (vertical lines)
-        for y in (area.y + 1)..(area.y + area.height - 1) {
-            buf.cell_mut((area.x, y))
-                .map(|cell| cell.set_char(VERTICAL).set_style(border_style));
-            buf.cell_mut((area.x + area.width - 1, y))
-                .map(|cell| cell.set_char(VERTICAL).set_style(border_style));
-        }
-
-        // Bottom-left corner
-        buf.cell_mut((area.x, area.y + area.height - 1))
-            .map(|cell| cell.set_char(CORNER_BOTTOM_LEFT).set_style(border_style));
-
-        // Bottom border
-        for x in (area.x + 1)..(area.x + area.width - 1) {
-            buf.cell_mut((x, area.y + area.height - 1))
-                .map(|cell| cell.set_char(HORIZONTAL).set_style(border_style));
-        }
-
-        // Bottom-right corner
-        buf.cell_mut((area.x + area.width - 1, area.y + area.height - 1))
-            .map(|cell| cell.set_char(CORNER_BOTTOM_RIGHT).set_style(border_style));
-
-        // Return inner area (excluding border)
-        Rect {
-            x: area.x + 1,
-            y: area.y + 1,
-            width: area.width.saturating_sub(2),
-            height: area.height.saturating_sub(2),
-        }
+        let (content_area, _) = pane.render_block_in_buffer(area, buf);
+        content_area
     }
 }
 
@@ -744,7 +666,7 @@ impl<'a> Toc<'a> {
         }
 
         // Fill entire area with background first (including under border)
-        fill_background(buf, area, self.config.background_style);
+        fill_background(buf, area, self.panel_background_style());
 
         // Draw border on top of background
         let content_area = if self.config.show_border {
@@ -1236,7 +1158,7 @@ impl<'a> Widget for Toc<'a> {
             for y in area.y..area.y + area.height {
                 for x in area.x..area.x + area.width {
                     if let Some(cell) = buf.cell_mut((x, y)) {
-                        cell.set_char(' ').set_style(self.config.background_style);
+                        cell.set_char(' ').set_style(self.panel_background_style());
                     }
                 }
             }
@@ -1251,5 +1173,40 @@ impl<'a> Widget for Toc<'a> {
             // Compact mode (not hovered): show horizontal lines
             self.render_compact(area, buf);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ratatui::buffer::Buffer;
+
+    fn row_text(buf: &Buffer, area: Rect, row: u16) -> String {
+        let mut text = String::new();
+        for x in area.x..area.x + area.width {
+            if let Some(cell) = buf.cell((x, row)) {
+                text.push_str(cell.symbol());
+            }
+        }
+        text
+    }
+
+    #[test]
+    fn compact_toc_renders_toc_title_in_border() {
+        let toc_state = TocState::from_content("# Heading");
+        let toc = Toc::new(&toc_state)
+            .expanded(false)
+            .config(TocConfig::default());
+
+        let area = Rect::new(0, 0, 20, 6);
+        let mut buf = Buffer::empty(area);
+
+        toc.render(area, &mut buf);
+
+        let top_row = row_text(&buf, area, area.y);
+        assert!(
+            top_row.contains("TOC"),
+            "expected TOC title in top border, got: {top_row:?}"
+        );
     }
 }
