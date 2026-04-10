@@ -118,7 +118,7 @@ hotkey-service = []
 ratatui = "0.29"
 crossterm = "0.28"
 portable-pty = "0.8"
-opencode-sdk = { path = "../opencode-rs-sdk", features = ["http", "sse", "server"] }
+opencode-sdk = { version = "0.1.7", features = ["http", "sse", "server"] }
 serde_json = "1"
 reqwest = { version = "0.12", features = ["json"] }
 tracing = "0.1"
