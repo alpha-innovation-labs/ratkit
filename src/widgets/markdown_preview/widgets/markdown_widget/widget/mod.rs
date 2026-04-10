@@ -90,7 +90,6 @@ impl MarkdownWidget<'_> {
 }
 
 impl<'a> MarkdownWidget<'a> {
-
     pub(crate) fn parse_elements(&self) -> Vec<crate::widgets::markdown_preview::MarkdownElement> {
         crate::widgets::markdown_preview::widgets::markdown_widget::foundation::parser::render_markdown_to_elements(
             &self.content,
