@@ -6,6 +6,7 @@ pub:
     #!/usr/bin/env bash
     set -euo pipefail
 
+    echo "ASD"
     echo "Checking git status..."
     if ! git diff --quiet --exit-code || ! git diff --cached --quiet --exit-code; then
         echo "Found uncommitted changes. Committing all changes before release..."
